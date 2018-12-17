@@ -1,0 +1,19 @@
+.example-block {
+  width: 150px;
+  height: 150px;
+  background-color: red;
+
+  position: absolute;
+  left: 0px;
+  top:0px;
+  user-drag: none;
+  -moz-user-drag: none;
+  display: block;
+}
+
+:host {
+  position: relative;
+  width: 100%;
+  min-height: 100px;
+  display: block;
+}
