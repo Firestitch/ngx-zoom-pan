@@ -1,7 +1,8 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ZoomPanComponent } from './components/zoom-pan/zoom-pan.component';
+import { FsZoomPanComponent } from './components/zoom-pan/zoom-pan.component';
+import { FsZoomPanContentDirective } from './directives';
 // import { FsComponentService } from './services';
 
 @NgModule({
@@ -9,12 +10,14 @@ import { ZoomPanComponent } from './components/zoom-pan/zoom-pan.component';
     CommonModule,
   ],
   exports: [
-    ZoomPanComponent,
+    FsZoomPanComponent,
+    FsZoomPanContentDirective,
   ],
   entryComponents: [
   ],
   declarations: [
-    ZoomPanComponent,
+    FsZoomPanComponent,
+    FsZoomPanContentDirective,
   ],
   providers: [
     // FsComponentService,

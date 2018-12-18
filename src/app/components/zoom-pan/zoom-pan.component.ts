@@ -1,20 +1,23 @@
 import {
-  AfterViewInit, Component, ElementRef, Input, NgZone, OnDestroy, OnInit, Renderer2,
+  AfterViewInit, Component, ContentChild, ElementRef, Input, NgZone, OnChanges, OnDestroy,
+  Renderer2, TemplateRef,
   ViewChild
 } from '@angular/core';
 
 import { ZoomPan } from '../../classes/zoompan';
+import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content';
 
 @Component({
   selector: 'fs-zoom-pan',
   templateUrl: 'zoom-pan.component.html',
   styleUrls: ['zoom-pan.component.scss' ],
 })
-export class ZoomPanComponent implements  AfterViewInit, OnDestroy {
+export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
   @Input() public zoomMax = 10;
   @Input() public zoomMin = 0.1;
 
   @ViewChild('zoomable') public zoomable;
+  @ContentChild(FsZoomPanContentDirective, { read: TemplateRef }) contentTemplate: TemplateRef<FsZoomPanContentDirective>;
 
   private _zoomPan: ZoomPan = null;
 
@@ -31,8 +34,8 @@ export class ZoomPanComponent implements  AfterViewInit, OnDestroy {
     this._zoomPan.reset();
   }
 
-  public setLevel(level: number) {
-    this._zoomPan.setZoomLevel(level);
+  public setZoomLevel(scale: number) {
+    this._zoomPan && this._zoomPan.setZoomLevel(scale);
   }
 
   public ngOnDestroy() {

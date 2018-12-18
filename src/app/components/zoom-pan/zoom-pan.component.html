@@ -1,2 +1,3 @@
-<div #zoomable class="example-block" draggable="false"> </div>
-<button mat-button (click)="setLevel(0.5)"> Set 0.5 scale</button>
+<div class="zoomable" #zoomable>
+  <ng-template [ngTemplateOutlet]="contentTemplate"></ng-template>
+</div>
