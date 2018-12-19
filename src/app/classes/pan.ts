@@ -29,11 +29,11 @@ export class Pan {
   }
 
   get zoomElementTop(): number {
-    return parseInt(this._zoomElement.style.top) // without 'px' sufix
+    return parseInt(this._zoomElement.style.top) || 0 // without 'px' sufix
   }
 
   get zoomElementLeft(): number {
-    return parseInt(this._zoomElement.style.left) // without 'px' sufix
+    return parseInt(this._zoomElement.style.left) || 0 // without 'px' sufix
   }
 
   public events() {
