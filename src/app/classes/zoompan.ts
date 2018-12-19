@@ -1,10 +1,13 @@
 import { NgZone, Renderer2 } from '@angular/core';
 import { Zoom } from './zoom';
 import { Pan } from './pan';
+import { IFsZoomPanConfig } from '../interfaces/zoom-pan-config.interface';
 
 export class ZoomPan {
   private _zoom: Zoom;
   private _pan: Pan;
+
+  private _config: IFsZoomPanConfig;
 
 
   constructor(private _element: HTMLElement,
@@ -14,9 +17,17 @@ export class ZoomPan {
     this.initialization();
   }
 
+  get config() {
+    return this._config;
+  }
+
   public initialization() {
     this._zoom = new Zoom(this, this._element, this._zoomElement, this._zone, this._renderer);
     this._pan = new Pan(this, this._element, this._zoomElement, this._zone, this._renderer);
+  }
+
+  public setConfig(config: IFsZoomPanConfig) {
+    this._config = config;
   }
 
   public reset() {

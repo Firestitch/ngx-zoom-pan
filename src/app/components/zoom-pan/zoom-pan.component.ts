@@ -1,11 +1,12 @@
 import {
-  AfterViewInit, Component, ContentChild, ElementRef, Input, NgZone, OnChanges, OnDestroy,
-  Renderer2, TemplateRef,
-  ViewChild
+  AfterViewInit, Component, ContentChild,
+  ElementRef, Input, NgZone, OnDestroy,
+  Renderer2, TemplateRef, ViewChild
 } from '@angular/core';
 
 import { ZoomPan } from '../../classes/zoompan';
 import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content';
+import { IFsZoomPanConfig } from '../../interfaces/zoom-pan-config.interface';
 
 @Component({
   selector: 'fs-zoom-pan',
@@ -17,7 +18,8 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
   @Input() public zoomMin = 0.1;
 
   @ViewChild('zoomable') public zoomable;
-  @ContentChild(FsZoomPanContentDirective, { read: TemplateRef }) contentTemplate: TemplateRef<FsZoomPanContentDirective>;
+  @ContentChild(FsZoomPanContentDirective, { read: TemplateRef })
+  public contentTemplate: TemplateRef<FsZoomPanContentDirective>;
 
   private _zoomPan: ZoomPan = null;
 
@@ -28,6 +30,7 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
 
   public ngAfterViewInit() {
     this._zoomPan = new ZoomPan(this._element.nativeElement, this.zoomable.nativeElement, this._zone, this._renderer);
+    this.setConfig()
   }
 
   public reset() {
@@ -40,5 +43,14 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
 
   public ngOnDestroy() {
     this._zoomPan.destroy();
+  }
+
+  private setConfig() {
+    const config: IFsZoomPanConfig = {
+      zoomMax: this.zoomMax,
+      zoomMin: this.zoomMin
+    };
+
+    this._zoomPan.setConfig(config);
   }
 }

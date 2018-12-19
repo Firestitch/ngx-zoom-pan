@@ -20,8 +20,8 @@
   "main": "package/index.js",
   "typings": "package/index.d.ts",
   "scripts": {
-    "package": "ng build ngx-zoom-pan",
-    "package:test": "ng test ngx-zoom-pan",
+    "package": "ng build fs-package",
+    "package:test": "ng test fs-package",
     "package:publish": "cd package && npm publish --access=public",
     "demo:build": "ng build --aot --prod",
     "serve": "ng serve"
