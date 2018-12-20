@@ -1,6 +1,12 @@
+<div fxFlexLayout="row">
+  <button mat-icon-button fsZoomPanIn><mat-icon>zoom_in</mat-icon></button>
+  <button mat-icon-button fsZoomPanOut><mat-icon>zoom_out</mat-icon></button>
+  <button mat-icon-button fsZoomPanReset><mat-icon>youtube_searched_for</mat-icon></button>
+  <!-- <button mat-icon-button fsZoomPanCenter><mat-icon>gps_fixed</mat-icon></button> -->
+</div>
 <fs-zoom-pan>
   <ng-template fsZoomPanContent>
-    <div class="example-block"></div>
+    <div class="example-block" *ngFor="let block of blocks" [ngStyle]="block"></div>
   </ng-template>
 </fs-zoom-pan>
 

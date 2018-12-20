@@ -74,7 +74,7 @@ export class Zoom {
     this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this._zoomLevel);
     this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this._zoomLevel);
 
-    const zoom = this._zoomLevel + (delta * .10);
+    const zoom = this.validateZoom(this._zoomLevel + (delta * .30));
 
     // determine the location on the screen at the new scale
     const xNew = (xScreen - this._lastElemCoords.x) / zoom;
@@ -87,12 +87,9 @@ export class Zoom {
     this.setZoom(zoom, { x: this._lastElemCoords.x, y: this._lastElemCoords.y }, { x: xNew, y: yNew });
   }
 
-  private setZoom(zoom: number, origin, translate ) {
-    // keep within the limits
-    if ( (this._zoomPan.config.zoomMin && zoom < this._zoomPan.config.zoomMin)
-      || (this._zoomPan.config.zoomMax && zoom > this._zoomPan.config.zoomMax)) {
-      return;
-    }
+  private setZoom(zoom: number, origin, translate) {
+
+    zoom = this.validateZoom(zoom);
 
     if (translate && origin) {
       this._renderer.setStyle(this._zoomElement, `transform`, `translateZ(0) scale(${zoom}) translate(${translate.x}px, ${translate.y}px)`);
@@ -100,6 +97,18 @@ export class Zoom {
     }
 
     this._zoomLevel = zoom;
+  }
+
+  private validateZoom(zoom) {
+    // keep within the limits
+    if (this._zoomPan.config.zoomMin && zoom < this._zoomPan.config.zoomMin) {
+      zoom = this._zoomPan.config.zoomMin;
+    }
+    if (this._zoomPan.config.zoomMax && zoom > this._zoomPan.config.zoomMax) {
+      zoom = this._zoomPan.config.zoomMax;
+    }
+
+    return zoom;
   }
 
   private setOffset() {
