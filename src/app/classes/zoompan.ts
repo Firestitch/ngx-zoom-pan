@@ -28,6 +28,10 @@ export class ZoomPan {
 
   public setConfig(config: IFsZoomPanConfig) {
     this._config = config;
+
+    if (this._config.zoomDefault !== 1) {
+      this.setZoomLevel(this._config.zoomDefault);
+    }
   }
 
   public reset() {

@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 
 import { ZoomPan } from '../../classes/zoompan';
-import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content';
+import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content.directive';
 import { IFsZoomPanConfig } from '../../interfaces/zoom-pan-config.interface';
 
 @Component({
@@ -16,6 +16,7 @@ import { IFsZoomPanConfig } from '../../interfaces/zoom-pan-config.interface';
 export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
   @Input() public zoomMax = 10;
   @Input() public zoomMin = 0.05;
+  @Input() public zoomDefault = 1;
 
   @ViewChild('zoomable') public zoomable;
   @ContentChild(FsZoomPanContentDirective, { read: TemplateRef })
@@ -48,7 +49,8 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
   private setConfig() {
     const config: IFsZoomPanConfig = {
       zoomMax: this.zoomMax,
-      zoomMin: this.zoomMin
+      zoomMin: this.zoomMin,
+      zoomDefault: this.zoomDefault
     };
 
     this._zoomPan.setConfig(config);

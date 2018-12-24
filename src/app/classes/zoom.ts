@@ -43,7 +43,7 @@ export class Zoom {
   }
 
   public reset() {
-    this.setZoom(1, { x: 0, y: 0 }, { x: 0, y: 0 });
+    this.setZoom(this._zoomPan.config.zoomDefault, { x: 0, y: 0 }, { x: 0, y: 0 });
   }
 
   public setLevel(scale: number) {

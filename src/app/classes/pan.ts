@@ -11,6 +11,7 @@ export class Pan {
   private _mouseDownListener: Function;
   private _mouseUpListener: Function;
   private _mouseMoveListener: Function;
+  private _mouseLeaveListener: Function;
   private _touchStartListener: Function;
   private _touchEndListener: Function;
   private _touchMoveListener: Function;
@@ -62,9 +63,14 @@ export class Pan {
         this._element, 'mousemove', this._dragHandler
       );
 
+      this._mouseLeaveListener = this._renderer.listen(
+        this._element, 'mouseleave', this._dragEndHandler
+      );
+
       this._touchMoveListener = this._renderer.listen(
         this._element, 'touchmove', this._dragHandler
       );
+
     })
   }
 
@@ -91,8 +97,8 @@ export class Pan {
     const newLeft = (newPosition.x - this._positionCoord.x) + this._positionPage.left;
 
     if (this.zoomElementTop !== newTop && this.zoomElementLeft !== newLeft) {
-      this._zoomElement.style.top = newTop + 'px';
-      this._zoomElement.style.left = newLeft + 'px';
+      this._renderer.setStyle(this._zoomElement, 'top', `${newTop}px`);
+      this._renderer.setStyle(this._zoomElement, 'left', `${newLeft}px`);
     }
   }
 
@@ -109,6 +115,7 @@ export class Pan {
     this._mouseDownListener();
     this._mouseUpListener();
     this._mouseMoveListener();
+    this._mouseLeaveListener();
     this._touchStartListener();
     this._touchEndListener();
     this._touchMoveListener();
