@@ -1,7 +1,7 @@
 {
   "name": "@firestitch/zoom-pan",
   "description": "@firestitch/zoom-pan",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/Firestitch/ngx-zoom-pan"
@@ -46,6 +46,7 @@
     "@angular/router": "^6.1.9",
     "@compodoc/compodoc": "^1.0.5",
     "@firestitch/example": "^0.4.1",
+    "@firestitch/message": "^0.1.23",
     "@types/googlemaps": "^3.30.2",
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
@@ -65,6 +66,7 @@
     "karma-jasmine": "~1.1.2",
     "karma-jasmine-html-reporter": "^0.2.2",
     "ng-packagr": "^4.1.0",
+    "ngx-toastr": "^9.1.1",
     "node-watch": "^0.5.7",
     "npm-run-all": "^4.1.2",
     "protractor": "~5.4.0",
