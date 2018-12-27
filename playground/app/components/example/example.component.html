@@ -2,11 +2,22 @@
   <button mat-icon-button (click)="zoomIn()"><mat-icon>zoom_in</mat-icon></button>
   <button mat-icon-button (click)="zoomOut()"><mat-icon>zoom_out</mat-icon></button>
   <button mat-icon-button (click)="reset()"><mat-icon>youtube_searched_for</mat-icon></button>
+  <button mat-icon-button (click)="add()"><mat-icon>add</mat-icon></button>
   <!-- <button mat-icon-button fsZoomPanCenter><mat-icon>gps_fixed</mat-icon></button> -->
 </div>
 <fs-zoom-pan>
   <ng-template fsZoomPanContent>
-    <div class="example-block" *ngFor="let block of blocks" [ngStyle]="block"></div>
+
+    <div fsModel #model>
+      <div  *ngFor="let object of objects"
+            fsModelObject (dragStop)="dragStop($event)"
+            [object]="object"
+            [x1]="object.x1"
+            [y1]="object.y1">
+        <button mat-icon-button (click)="remove(object)"><mat-icon>clear</mat-icon></button>
+        <div>{{object.name}}</div>
+      </div>
+    </div>
   </ng-template>
 </fs-zoom-pan>
 

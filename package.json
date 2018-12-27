@@ -20,7 +20,7 @@
   "main": "package/index.js",
   "typings": "package/index.d.ts",
   "scripts": {
-    "package": "ng build fs-package",
+    "package": "cd tools && npm run cli:package",
     "package:test": "ng test fs-package",
     "package:publish": "cd package && npm publish --access=public",
     "demo:build": "ng build --aot --prod",
@@ -47,6 +47,7 @@
     "@compodoc/compodoc": "^1.0.5",
     "@firestitch/example": "^0.4.1",
     "@firestitch/message": "^0.1.23",
+    "@firestitch/model": "^0.1.6",
     "@types/googlemaps": "^3.30.2",
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
@@ -79,13 +80,13 @@
     "tslint": "~5.7.0",
     "typescript": "^2.9.2",
     "webpack": "^4.20.2",
-    "zone.js": "^0.8.26"
+    "zone.js": "^0.8.26",
+    "rxjs-compat": "^6.3.3",
+    "jsplumb": "^2.8.6"
   },
   "engines": {
     "node": ">=6.0.0"
   },
   "peerDependencies": {},
-  "dependencies": {
-    "rxjs-compat": "^6.3.3"
-  }
+  "dependencies": {}
 }

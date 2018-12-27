@@ -5,6 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FsExampleModule } from '@firestitch/example';
+import { FsModelModule } from '@firestitch/model';
 
 import { FsZoomPanModule } from 'fs-package';
 
@@ -29,6 +30,7 @@ const routes: Routes = [
     FormsModule,
     FsExampleModule.forRoot(),
     RouterModule.forRoot(routes),
+    FsModelModule
   ],
   entryComponents: [
   ],
