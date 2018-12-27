@@ -2,4 +2,5 @@
  * Public API Surface of fs-menu
  */
 
-export { FsComponentModule } from './app/zoom-pan.module';
+export { FsZoomPanModule } from './app/zoom-pan.module';
+export { FsZoomPanComponent } from './app/components/zoom-pan/zoom-pan.component';

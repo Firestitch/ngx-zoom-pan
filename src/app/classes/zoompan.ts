@@ -30,7 +30,7 @@ export class ZoomPan {
     this._config = config;
 
     if (this._config.zoomDefault !== 1) {
-      this.setZoomLevel(this._config.zoomDefault);
+      this.setZoomScale(this._config.zoomDefault);
     }
   }
 
@@ -39,8 +39,16 @@ export class ZoomPan {
     this._pan.reset();
   }
 
-  public setZoomLevel(scale: number) {
-    this._zoom.setLevel(scale)
+  public zoomIn() {
+    this._zoom.zoomIn();
+  }
+
+  public zoomOut() {
+    this._zoom.zoomOut();
+  }
+
+  public setZoomScale(scale: number) {
+    this._zoom.setScale(scale)
   }
 
   public destroy() {

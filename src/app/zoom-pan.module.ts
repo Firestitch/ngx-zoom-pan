@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 import { FsZoomPanComponent } from './components/zoom-pan/zoom-pan.component';
 import { FsZoomPanContentDirective } from './directives';
-// import { FsComponentService } from './services';
 
 @NgModule({
   imports: [
@@ -20,13 +19,13 @@ import { FsZoomPanContentDirective } from './directives';
     FsZoomPanContentDirective,
   ],
   providers: [
-    // FsComponentService,
+    // FsComponentService
   ],
 })
-export class FsComponentModule {
+export class FsZoomPanModule {
   static forRoot(): ModuleWithProviders {
     return {
-      ngModule: FsComponentModule,
+      ngModule: FsZoomPanModule,
       // providers: [FsComponentService]
     };
   }

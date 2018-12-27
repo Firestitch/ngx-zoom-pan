@@ -38,8 +38,16 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
     this._zoomPan.reset();
   }
 
+  public zoomIn() {
+    this._zoomPan.zoomIn();
+  }
+
+  public zoomOut() {
+    this._zoomPan.zoomOut();
+  }
+
   public setZoomLevel(scale: number) {
-    this._zoomPan && this._zoomPan.setZoomLevel(scale);
+    this._zoomPan && this._zoomPan.setZoomScale(scale);
   }
 
   public ngOnDestroy() {

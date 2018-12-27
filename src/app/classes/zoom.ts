@@ -8,7 +8,8 @@ export class Zoom {
   // listeners
   private _wheelListener: Function;
 
-  private _zoomLevel = 1;
+  private _zoomScale = 1;
+  private _zoomStep = 0.1;
 
   private _lastScreenCoords = { x: 0, y: 0 };
   private _lastElemCoords = { x: 0, y: 0 };
@@ -46,8 +47,31 @@ export class Zoom {
     this.setZoom(this._zoomPan.config.zoomDefault, { x: 0, y: 0 }, { x: 0, y: 0 });
   }
 
-  public setLevel(scale: number) {
-    this.setZoom(scale, { x: 0, y: 0 }, { x: 0, y: 0 })
+  public zoomIn() {
+    const newScale = this._zoomScale + this._zoomStep;
+
+    this.setZoom(
+      newScale,
+      { x: this._lastElemCoords.x, y: this._lastElemCoords.y },
+      { x: 0, y: 0 }
+    )
+  }
+
+  public zoomOut() {
+    const newScale = this._zoomScale - this._zoomStep;
+
+    this.setZoom(
+      newScale,
+      { x: this._lastElemCoords.x, y: this._lastElemCoords.y },
+      { x: 0, y: 0 }
+    )
+  }
+
+
+  public setScale(scale: number) {
+    this.setZoom(scale,
+      { x: this._lastElemCoords.x, y: this._lastElemCoords.y },
+      { x: 0, y: 0 })
   }
 
   public destroy() {
@@ -71,10 +95,10 @@ export class Zoom {
     const xScreen = focusX - this._offset.left - this.zoomElementLeft;
     const yScreen = focusY - this._offset.top - this.zoomElementTop;
 
-    this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this._zoomLevel);
-    this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this._zoomLevel);
+    this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this._zoomScale);
+    this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this._zoomScale);
 
-    const zoom = this.validateZoom(this._zoomLevel + (delta * .30));
+    const zoom = this.validateZoom(this._zoomScale + (delta * .30));
 
     // determine the location on the screen at the new scale
     const xNew = (xScreen - this._lastElemCoords.x) / zoom;
@@ -87,16 +111,25 @@ export class Zoom {
     this.setZoom(zoom, { x: this._lastElemCoords.x, y: this._lastElemCoords.y }, { x: xNew, y: yNew });
   }
 
-  private setZoom(zoom: number, origin, translate) {
+  private setZoom(zoom: number, origin: { x: number, y: number }, translate: { x: number, y: number}) {
 
     zoom = this.validateZoom(zoom);
 
     if (translate && origin) {
-      this._renderer.setStyle(this._zoomElement, `transform`, `translateZ(0) scale(${zoom}) translate(${translate.x}px, ${translate.y}px)`);
-      this._renderer.setStyle(this._zoomElement, 'transform-origin', `${origin.x}px ${origin.y}px`);
+      this._renderer.setStyle(
+        this._zoomElement,
+        'transform',
+        `translateZ(0) scale(${zoom}) translate(${translate.x}px, ${translate.y}px)`
+      );
+
+      this._renderer.setStyle(
+        this._zoomElement,
+        'transform-origin',
+        `${origin.x}px ${origin.y}px`
+      );
     }
 
-    this._zoomLevel = zoom;
+    this._zoomScale = zoom;
   }
 
   private validateZoom(zoom) {
