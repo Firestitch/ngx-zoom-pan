@@ -21,6 +21,10 @@ export class ZoomPan {
     return this._config;
   }
 
+  get zoomScale() {
+    return this._zoom.scale;
+  }
+
   public initialization() {
     this._zoom = new Zoom(this, this._element, this._zoomElement, this._zone, this._renderer);
     this._pan = new Pan(this, this._element, this._zoomElement, this._zone, this._renderer);

@@ -33,6 +33,10 @@ export class Zoom {
     return parseInt(this._zoomElement.style.left) || 0 // without 'px' sufix
   }
 
+  get scale() {
+    return this._zoomScale;
+  }
+
   public events() {
     this._wheelHandler = this.wheel.bind(this);
 

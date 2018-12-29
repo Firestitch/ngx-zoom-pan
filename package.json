@@ -1,7 +1,7 @@
 {
   "name": "@firestitch/zoom-pan",
   "description": "@firestitch/zoom-pan",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/Firestitch/ngx-zoom-pan"
@@ -47,7 +47,6 @@
     "@compodoc/compodoc": "^1.0.5",
     "@firestitch/example": "^0.4.1",
     "@firestitch/message": "^0.1.23",
-    "@firestitch/model": "^0.1.6",
     "@types/googlemaps": "^3.30.2",
     "@types/jasmine": "~2.8.8",
     "@types/jasminewd2": "~2.0.3",
@@ -61,6 +60,7 @@
     "http-server": "^0.11.1",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
+    "jsplumb": "^2.8.6",
     "karma": "~3.0.0",
     "karma-chrome-launcher": "~2.2.0",
     "karma-coverage-istanbul-reporter": "~2.0.1",
@@ -74,19 +74,20 @@
     "replace": "^0.3.0",
     "run-sequence": "^1.2.2",
     "rxjs": "^6.3.3",
+    "rxjs-compat": "^6.3.3",
     "ts-node": "~7.0.0",
     "tsickle": ">=0.29.0",
     "tslib": "^1.9.3",
     "tslint": "~5.7.0",
     "typescript": "^2.9.2",
     "webpack": "^4.20.2",
-    "zone.js": "^0.8.26",
-    "rxjs-compat": "^6.3.3",
-    "jsplumb": "^2.8.6"
+    "zone.js": "^0.8.26"
   },
   "engines": {
     "node": ">=6.0.0"
   },
   "peerDependencies": {},
-  "dependencies": {}
+  "dependencies": {
+    "@firestitch/model": "^0.1.7"
+  }
 }

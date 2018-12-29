@@ -5,13 +5,15 @@
   <button mat-icon-button (click)="add()"><mat-icon>add</mat-icon></button>
   <!-- <button mat-icon-button fsZoomPanCenter><mat-icon>gps_fixed</mat-icon></button> -->
 </div>
-<fs-zoom-pan>
+<fs-zoom-pan #zoom>
   <ng-template fsZoomPanContent>
 
     <div fsModel #model>
       <div  *ngFor="let object of objects"
-            fsModelObject (dragStop)="dragStop($event)"
+            fsModelObject
+            (dragStop)="dragStop($event)"
             [object]="object"
+            [scale]="zoom.scale"
             [x1]="object.x1"
             [y1]="object.y1">
         <button mat-icon-button (click)="remove(object)"><mat-icon>clear</mat-icon></button>

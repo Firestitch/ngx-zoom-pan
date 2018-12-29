@@ -1,17 +1,30 @@
+::ng-deep {
 
-fs-zoom-pan {
-  border: 1px solid #929eaa;
-  border-radius: 5px;
-  overflow: hidden;
-  height: 600px;
-  position: relative;
-}
+  .fs-model {
+    height: 600px;
+    border: 1px solid #efefef;
+    overflow: hidden;
+  }
 
-::ng-deep .fs-model-object {
-  height: 150px;
-  width: 150px;
-  border: 3px solid #2196F3;
-  text-align: center;
-  border-radius: 4px;
-  background: #fff;
+  .fs-model-object {
+    border: 2px solid #2196F3;
+    background: #fff;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    line-height: 100px;
+    border-radius: 3px;
+    font-size: 17px;
+
+    button {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+
+  .fs-model-connection-label {
+    font-size: 14px;
+    color: #555;
+  }
 }
