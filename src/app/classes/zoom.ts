@@ -102,7 +102,7 @@ export class Zoom {
     this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this._zoomScale);
     this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this._zoomScale);
 
-    const zoom = this.validateZoom(this._zoomScale + (delta * .30));
+    const zoom = this.validateZoom(this._zoomScale + (delta * .2));
 
     // determine the location on the screen at the new scale
     const xNew = (xScreen - this._lastElemCoords.x) / zoom;
