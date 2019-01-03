@@ -1,4 +1,4 @@
-import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { FsZoomPanComponent } from 'fs-package';
 import { FsModelDirective, ConnectionOverlayType } from '@firestitch/model';
 import { random } from 'lodash';
@@ -14,6 +14,10 @@ export class ExampleComponent implements AfterViewInit {
 
   @ViewChild(FsModelDirective)
   public model: FsModelDirective;
+
+  @ViewChild('zoomPanContaner')
+  public zoomPanContaner: ElementRef;
+
   public objects = [];
 
   public zoomIn() {
@@ -29,7 +33,6 @@ export class ExampleComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-
     for (let i = 0; i < 8; i++) {
       this.add();
     }
@@ -41,7 +44,7 @@ export class ExampleComponent implements AfterViewInit {
 
   add() {
 
-    const x1 = random(0, this.model.element.nativeElement.offsetWidth - 100 - 4);
+    const x1 = random(0, this.zoomPanContaner.nativeElement.offsetWidth - 100 - 4);
     const y1 = random(0, 600 - 150 - 4);
 
     const idx = this.objects.length;
