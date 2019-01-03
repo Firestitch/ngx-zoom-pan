@@ -5,9 +5,9 @@
   <button mat-icon-button (click)="add()"><mat-icon>add</mat-icon></button>
 </div>
 <div #zoomPanContaner>
-  <fs-zoom-pan #zoomPan>
+  <fs-zoom-pan>
     <ng-template fsZoomPanContent>
-      <div fsModel #model>
+      <div fsModel>
         <div  *ngFor="let object of objects"
               fsModelObject
               (dragStop)="dragStop($event)"
