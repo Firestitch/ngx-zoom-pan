@@ -1,6 +1,6 @@
 import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { FsZoomPanComponent } from 'fs-package';
-import { FsModelDirective } from '@firestitch/model';
+import { FsModelDirective, ConnectionOverlayType } from '@firestitch/model';
 import { random } from 'lodash';
 
 @Component({
@@ -55,16 +55,19 @@ export class ExampleComponent implements AfterViewInit {
       const object1 = this.objects[idx - 1];
       const object2 = this.objects[idx];
 
-      this.model.connect(object1, object2,
-        {
-          label: 'Label ' + idx,
-          click: (data, e) => {
-            console.log(data, e);
-          },
+      let config = {
+          overlays: [
+            {
+              type: ConnectionOverlayType.Label,
+              label: 'Label ' + idx
+            }
+          ],
           data: {
             object: object
           }
-      });
+      };
+
+      this.model.connect(object1, object2, config);
     }
   }
 

@@ -81,13 +81,12 @@
     "tslint": "~5.7.0",
     "typescript": "^2.9.2",
     "webpack": "^4.20.2",
-    "zone.js": "^0.8.26"
+    "zone.js": "^0.8.26",
+    "@firestitch/model": "^0.1.8",
+    "@firestitch/common": "^0.3.3"
   },
   "engines": {
     "node": ">=6.0.0"
   },
-  "peerDependencies": {},
-  "dependencies": {
-    "@firestitch/model": "^0.1.7"
-  }
+  "peerDependencies": {}
 }

@@ -12,7 +12,7 @@
       <div  *ngFor="let object of objects"
             fsModelObject
             (dragStop)="dragStop($event)"
-            [object]="object"
+            [data]="object"
             [scale]="zoom.scale"
             [x1]="object.x1"
             [y1]="object.y1">
