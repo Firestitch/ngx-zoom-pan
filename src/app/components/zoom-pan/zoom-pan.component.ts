@@ -14,8 +14,8 @@ import { IFsZoomPanConfig } from '../../interfaces/zoom-pan-config.interface';
   styleUrls: ['zoom-pan.component.scss' ],
 })
 export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
-  @Input() public zoomMax = 2;
-  @Input() public zoomMin = .2;
+  @Input() public zoomMax = 1.5;
+  @Input() public zoomMin = .3;
   @Input() public zoomDefault = 1;
 
   @ViewChild('zoomable') public zoomable;

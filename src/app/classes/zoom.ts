@@ -83,6 +83,9 @@ export class Zoom {
   }
 
   public wheel(event: WheelEvent) {
+
+    // hack for now to keep the position updated of the zoom-pan container
+    this.setOffset();
     event.preventDefault();
     let delta = event.wheelDelta || -event.detail; // @TODO process firefox event
     delta = Math.max(-100, Math.min(100, (delta))) / 100;
@@ -94,15 +97,15 @@ export class Zoom {
   }
 
   private adjustZoom(delta: number, focusX: number, focusY: number) {
-    // find current location on screen
 
+    // find current location on screen
     const xScreen = focusX - this._offset.left - this.zoomElementLeft;
     const yScreen = focusY - this._offset.top - this.zoomElementTop;
 
     this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this._zoomScale);
     this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this._zoomScale);
 
-    const zoom = this.validateZoom(this._zoomScale + (delta * .2));
+    const zoom = this.validateZoom(this._zoomScale + (delta * .1));
 
     // determine the location on the screen at the new scale
     const xNew = (xScreen - this._lastElemCoords.x) / zoom;
@@ -149,11 +152,11 @@ export class Zoom {
   }
 
   private setOffset() {
-    const rect = this._zoomElement.getBoundingClientRect();
+    const rect = this._element.getBoundingClientRect();
 
     this._offset = {
-      top: rect.top + document.body.scrollTop,
-      left: rect.left + document.body.scrollLeft
+      top: rect.top,
+      left: rect.left
     };
   }
 
