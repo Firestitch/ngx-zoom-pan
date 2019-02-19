@@ -1,6 +1,7 @@
 import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
-import { FsZoomPanComponent } from 'fs-package';
+import { FsZoomPanComponent } from '@firestitch/zoom-pan';
 import { FsModelDirective, ConnectionOverlayType } from '@firestitch/model';
+
 import { random } from 'lodash';
 
 @Component({

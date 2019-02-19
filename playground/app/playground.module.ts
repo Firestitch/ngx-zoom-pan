@@ -6,8 +6,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FsExampleModule } from '@firestitch/example';
 import { FsModelModule } from '@firestitch/model';
-
-import { FsZoomPanModule } from 'fs-package';
+import { FsZoomPanModule } from '@firestitch/zoom-pan';
+import { FsMessageModule } from '@firestitch/message';
+import { ToastrModule } from 'ngx-toastr';
 
 import { AppMaterialModule } from './material.module';
 import {
@@ -29,6 +30,8 @@ const routes: Routes = [
     AppMaterialModule,
     FormsModule,
     FsExampleModule.forRoot(),
+    ToastrModule.forRoot({ preventDuplicates: true }),
+    FsMessageModule.forRoot(),
     RouterModule.forRoot(routes),
     FsModelModule
   ],
