@@ -2,7 +2,7 @@
   "name": "@firestitch/zoom-pan",
   "title": "Zoom Pan",
   "description": "@firestitch/zoom-pan",
-  "version": "0.2.0",
+  "version": "7.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Firestitch/ngx-zoom-pan"
@@ -47,8 +47,7 @@
     "@angular/router": "^7.2.5",
     "@compodoc/compodoc": "^1.1.7",
     "@firestitch/common": "^0.5.1",
-    "@firestitch/example": "^0.6.0",
-    "@firestitch/iframe": "^0.2.0",
+    "@firestitch/example": "^7.0.0",
     "@firestitch/message": "^0.2.0",
     "@firestitch/model": "^0.3.0",
     "codelyzer": "^4.5.0",
@@ -69,6 +68,5 @@
   "engines": {
     "node": ">=6.0.0"
   },
-  "peerDependencies": {},
-  "dependencies": {}
+  "peerDependencies": {}
 }
