@@ -2,7 +2,7 @@
   "name": "@firestitch/zoom-pan",
   "title": "Zoom Pan",
   "description": "@firestitch/zoom-pan",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/Firestitch/ngx-zoom-pan"

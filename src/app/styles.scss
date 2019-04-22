@@ -1,12 +1,3 @@
-.zoomable {
-  position: relative;
-  left: 0px;
-  top:0px;
-  user-drag: none;
-  -moz-user-drag: none;
-  display: block;
-}
-
 fs-zoom-pan {
   position: relative;
   width: 100%;
@@ -14,4 +5,13 @@ fs-zoom-pan {
   display: block;
   user-select: none;
   overflow: hidden;
+
+  .zoomable {
+    position: relative;
+    left: 0px;
+    top:0px;
+    user-drag: none;
+    -moz-user-drag: none;
+    display: block;
+  }
 }

@@ -38,6 +38,10 @@ export class ZoomPan {
     }
   }
 
+  public move(top, left) {
+    this._pan.move(top, left);
+  }
+
   public reset() {
     this._zoom.reset();
     this._pan.reset();

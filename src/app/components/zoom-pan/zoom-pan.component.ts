@@ -17,6 +17,8 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
   @Input() public zoomMax = 1.5;
   @Input() public zoomMin = .3;
   @Input() public zoomDefault = 1;
+  @Input() public top = 0;
+  @Input() public left = 0;
 
   @ViewChild('zoomable') public zoomable;
   @ContentChild(FsZoomPanContentDirective, { read: TemplateRef })
@@ -35,7 +37,12 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
 
   public ngAfterViewInit() {
     this._zoomPan = new ZoomPan(this._element.nativeElement, this.zoomable.nativeElement, this._zone, this._renderer);
-    this.setConfig()
+
+    if (this.top || this.left) {
+      this._zoomPan.move(this.top, this.left);
+    }
+
+    this.setConfig();
   }
 
   public reset() {

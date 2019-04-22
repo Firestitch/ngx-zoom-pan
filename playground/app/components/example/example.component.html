@@ -5,7 +5,7 @@
   <button mat-icon-button (click)="add()"><mat-icon>add</mat-icon></button>
 </div>
 <div #zoomPanContaner>
-  <fs-zoom-pan>
+  <fs-zoom-pan [top]="-50" [left]="-50">
     <ng-template fsZoomPanContent>
       <div fsModel #model>
         <div  *ngFor="let object of objects"

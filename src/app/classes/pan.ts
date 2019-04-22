@@ -96,9 +96,13 @@ export class Pan {
     const newTop = (newPosition.y - this._positionCoord.y) + this._positionPage.top;
     const newLeft = (newPosition.x - this._positionCoord.x) + this._positionPage.left;
 
-    if (this.zoomElementTop !== newTop && this.zoomElementLeft !== newLeft) {
-      this._renderer.setStyle(this._zoomElement, 'top', `${newTop}px`);
-      this._renderer.setStyle(this._zoomElement, 'left', `${newLeft}px`);
+    this.move(newTop, newLeft);
+  }
+
+  public move(top, left) {
+    if (this.zoomElementTop !== top && this.zoomElementLeft !== left) {
+      this._renderer.setStyle(this._zoomElement, 'top', `${top}px`);
+      this._renderer.setStyle(this._zoomElement, 'left', `${left}px`);
     }
   }
 
