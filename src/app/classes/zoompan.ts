@@ -21,8 +21,27 @@ export class ZoomPan {
     return this._config;
   }
 
-  get zoomScale() {
+  get scale() {
     return this._zoom.scale;
+  }
+
+  set scale(scale: number) {
+    this._zoom.setScale(scale)
+  }
+
+  public center(el: HTMLElement) {
+
+    const leftCenter = el.offsetLeft + (el.offsetWidth / 2);
+    const topCenter = el.offsetTop + (el.offsetHeight / 2);
+
+    const x = this._pan.getWidth() / 2;
+    const y = this._pan.getHeight() / 2;
+
+    const left = (x - leftCenter);
+    const top = (y - topCenter);
+
+    this.reset();
+    this.move(left, top);
   }
 
   public initialization() {
@@ -34,12 +53,12 @@ export class ZoomPan {
     this._config = config;
 
     if (this._config.zoomDefault !== 1) {
-      this.setZoomScale(this._config.zoomDefault);
+      this.scale = this._config.zoomDefault;
     }
   }
 
-  public move(top, left) {
-    this._pan.move(top, left);
+  public move(left, top) {
+    this._pan.move(left, top);
   }
 
   public reset() {
@@ -53,10 +72,6 @@ export class ZoomPan {
 
   public zoomOut() {
     this._zoom.zoomOut();
-  }
-
-  public setZoomScale(scale: number) {
-    this._zoom.setScale(scale)
   }
 
   public destroy() {

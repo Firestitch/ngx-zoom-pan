@@ -32,14 +32,20 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
   }
 
   get scale() {
-    return this._zoomPan.zoomScale;
+    return this._zoomPan.scale;
+  }
+
+  set scale(scale: number) {
+    if (this._zoomPan) {
+      this._zoomPan.scale = scale;
+    }
   }
 
   public ngAfterViewInit() {
     this._zoomPan = new ZoomPan(this._element.nativeElement, this.zoomable.nativeElement, this._zone, this._renderer);
 
     if (this.top || this.left) {
-      this._zoomPan.move(this.top, this.left);
+      this._zoomPan.move(this.left, this.top);
     }
 
     this.setConfig();
@@ -49,16 +55,20 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
     this._zoomPan.reset();
   }
 
+  public center(el: HTMLElement) {
+    this._zoomPan.center(el);
+  }
+
   public zoomIn() {
     this._zoomPan.zoomIn();
   }
 
-  public zoomOut() {
-    this._zoomPan.zoomOut();
+  public move(left, top) {
+    this._zoomPan.move(left, top);
   }
 
-  public setZoomLevel(scale: number) {
-    this._zoomPan && this._zoomPan.setZoomScale(scale);
+  public zoomOut() {
+    this._zoomPan.zoomOut();
   }
 
   public ngOnDestroy() {

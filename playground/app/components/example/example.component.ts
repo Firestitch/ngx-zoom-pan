@@ -29,6 +29,10 @@ export class ExampleComponent implements AfterViewInit {
     this.zoomPan.zoomOut();
   }
 
+  public center(el) {
+    this.zoomPan.center(el);
+  }
+
   public reset() {
     this.zoomPan.reset();
   }
@@ -54,12 +58,12 @@ export class ExampleComponent implements AfterViewInit {
 
     this.objects.push(object);
 
-    if(idx) {
+    if (idx) {
 
       const object1 = this.objects[idx - 1];
       const object2 = this.objects[idx];
 
-      let config = {
+      const config = {
           overlays: [
             {
               type: ConnectionOverlayType.Label,

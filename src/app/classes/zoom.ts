@@ -62,7 +62,7 @@ export class Zoom {
   }
 
   public zoomOut() {
-    const newScale = this._zoomScale - this._zoomStep;
+    const newScale = this.scale - this._zoomStep;
 
     this.setZoom(
       newScale,
@@ -96,16 +96,16 @@ export class Zoom {
     this.adjustZoom(delta, pageX, pageY);
   }
 
-  private adjustZoom(delta: number, focusX: number, focusY: number) {
+  public adjustZoom(delta: number, focusX: number, focusY: number) {
 
     // find current location on screen
     const xScreen = focusX - this._offset.left - this.zoomElementLeft;
     const yScreen = focusY - this._offset.top - this.zoomElementTop;
 
-    this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this._zoomScale);
-    this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this._zoomScale);
+    this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this.scale);
+    this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this.scale);
 
-    const zoom = this.validateZoom(this._zoomScale + (delta * .1));
+    const zoom = this.validateZoom(this.scale + (delta * .1));
 
     // determine the location on the screen at the new scale
     const xNew = (xScreen - this._lastElemCoords.x) / zoom;

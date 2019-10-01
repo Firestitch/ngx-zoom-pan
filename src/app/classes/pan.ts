@@ -96,10 +96,10 @@ export class Pan {
     const newTop = (newPosition.y - this._positionCoord.y) + this._positionPage.top;
     const newLeft = (newPosition.x - this._positionCoord.x) + this._positionPage.left;
 
-    this.move(newTop, newLeft);
+    this.move(newLeft, newTop);
   }
 
-  public move(top, left) {
+  public move(left, top) {
     if (this.zoomElementTop !== top && this.zoomElementLeft !== left) {
       this._renderer.setStyle(this._zoomElement, 'top', `${top}px`);
       this._renderer.setStyle(this._zoomElement, 'left', `${left}px`);
@@ -113,6 +113,24 @@ export class Pan {
   public reset() {
     this._zoomElement.style.top = '0px';
     this._zoomElement.style.left = '0px';
+  }
+
+  public getWidth() {
+    return this._element.offsetWidth;
+  }
+
+  public getZoomableWidth() {
+    const el: any = this._element.querySelector('.zoomable');
+    return el.offsetWidth;
+  }
+
+  public getZoomableHeight() {
+    const el: any = this._element.querySelector('.zoomable');
+    return el.offsetHeight;
+  }
+
+  public getHeight() {
+    return this._element.offsetHeight;
   }
 
   public destroy() {
