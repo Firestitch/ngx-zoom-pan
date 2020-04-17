@@ -126,7 +126,7 @@ export class Zoom {
       this._renderer.setStyle(
         this._zoomElement,
         'transform',
-        `translateZ(0) scale(${zoom}) translate(${translate.x}px, ${translate.y}px)`
+        `scale(${zoom}) translate(${translate.x}px, ${translate.y}px)`
       );
 
       this._renderer.setStyle(

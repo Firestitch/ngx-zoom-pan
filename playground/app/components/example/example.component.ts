@@ -1,6 +1,6 @@
 import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { FsZoomPanComponent } from '@firestitch/zoom-pan';
-import { FsModelDirective, ConnectionOverlayType } from '@firestitch/model';
+import { FsDiagramDirective, ConnectionOverlayType } from '@firestitch/diagram';
 
 import { random } from 'lodash';
 
@@ -13,8 +13,8 @@ export class ExampleComponent implements AfterViewInit {
   @ViewChild(FsZoomPanComponent)
   public zoomPan: FsZoomPanComponent;
 
-  @ViewChild(FsModelDirective)
-  public model: FsModelDirective;
+  @ViewChild(FsDiagramDirective)
+  public model: FsDiagramDirective;
 
   @ViewChild('zoomPanContaner')
   public zoomPanContaner: ElementRef;
@@ -38,7 +38,7 @@ export class ExampleComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 200; i++) {
       this.add();
     }
   }

@@ -7,10 +7,10 @@
 <div #zoomPanContaner>
   <fs-zoom-pan [top]="-50" [left]="-50">
     <ng-template fsZoomPanContent>
-      <div fsModel #model>
+      <div fsDiagram>
         <div
           *ngFor="let object of objects"
-          fsModelObject
+          fsDiagramObject
           #modelObject
           (dragStop)="dragStop($event)"
           [data]="object"

@@ -5,7 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { FsExampleModule } from '@firestitch/example';
-import { FsModelModule } from '@firestitch/model';
+import { FsDiagramModule } from '@firestitch/diagram';
 import { FsZoomPanModule } from '@firestitch/zoom-pan';
 import { FsMessageModule } from '@firestitch/message';
 import { ToastrModule } from 'ngx-toastr';
@@ -33,7 +33,7 @@ const routes: Routes = [
     ToastrModule.forRoot({ preventDuplicates: true }),
     FsMessageModule.forRoot(),
     RouterModule.forRoot(routes),
-    FsModelModule
+    FsDiagramModule
   ],
   entryComponents: [
   ],
