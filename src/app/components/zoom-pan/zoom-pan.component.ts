@@ -12,8 +12,7 @@ import { IFsZoomPanConfig } from '../../interfaces/zoom-pan-config.interface';
 @Component({
   selector: 'fs-zoom-pan',
   templateUrl: 'zoom-pan.component.html',
-  styleUrls: ['zoom-pan.component.scss' ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['zoom-pan.component.scss' ]
 })
 export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
 
