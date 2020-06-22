@@ -87,7 +87,7 @@ export class Zoom {
     // hack for now to keep the position updated of the zoom-pan container
     this.setOffset();
     event.preventDefault();
-    let delta = event.wheelDelta || -event.detail; // @TODO process firefox event
+    let delta = event.deltaY || -event.detail; // @TODO process firefox event
     delta = Math.max(-100, Math.min(100, (delta))) / 100;
 
     const pageX = event.pageX;

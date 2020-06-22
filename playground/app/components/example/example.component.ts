@@ -10,13 +10,13 @@ import { random } from 'lodash';
   styleUrls: ['./example.component.scss']
 })
 export class ExampleComponent implements AfterViewInit {
-  @ViewChild(FsZoomPanComponent)
+  @ViewChild(FsZoomPanComponent, { static: true })
   public zoomPan: FsZoomPanComponent;
 
-  @ViewChild(FsDiagramDirective)
+  @ViewChild(FsDiagramDirective, { static: false })
   public model: FsDiagramDirective;
 
-  @ViewChild('zoomPanContaner')
+  @ViewChild('zoomPanContaner', { static: true })
   public zoomPanContaner: ElementRef;
 
   public objects = [];
