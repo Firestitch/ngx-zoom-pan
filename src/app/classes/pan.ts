@@ -1,7 +1,13 @@
-import { ZoomPan } from './zoompan';
 import { NgZone, Renderer2 } from '@angular/core';
 
+import { Subject } from 'rxjs';
+
+import { ZoomPan } from './zoompan';
+
 export class Pan {
+
+  public moved$ = new Subject<{ top: number, left: number}>();
+
   // handlers
   private _dragStartHandler: EventListener;
   private _dragEndHandler: EventListener;
@@ -103,6 +109,7 @@ export class Pan {
     if (this.zoomElementTop !== top && this.zoomElementLeft !== left) {
       this._renderer.setStyle(this._zoomElement, 'top', `${top}px`);
       this._renderer.setStyle(this._zoomElement, 'left', `${left}px`);
+      this.moved$.next({ left, top });
     }
   }
 

@@ -1,8 +1,13 @@
 import { NgZone, Renderer2 } from '@angular/core';
+
+import { Subject } from 'rxjs';
+
 import { ZoomPan } from './zoompan';
 
 export class Zoom {
-  // handlers
+
+  public zoomed$ = new Subject<any>();
+
   private _wheelHandler: EventListener;
 
   // listeners
@@ -58,7 +63,9 @@ export class Zoom {
       newScale,
       { x: this._lastElemCoords.x, y: this._lastElemCoords.y },
       { x: 0, y: 0 }
-    )
+    );
+
+    this.zoomed$.next(true);
   }
 
   public zoomOut() {
@@ -68,7 +75,9 @@ export class Zoom {
       newScale,
       { x: this._lastElemCoords.x, y: this._lastElemCoords.y },
       { x: 0, y: 0 }
-    )
+    );
+
+    this.zoomed$.next(false);
   }
 
 
@@ -93,10 +102,10 @@ export class Zoom {
     const pageX = event.pageX;
     const pageY = event.pageY;
 
-    this.adjustZoom(delta, pageX, pageY);
+    this._adjustZoom(delta, pageX, pageY);
   }
 
-  public adjustZoom(delta: number, focusX: number, focusY: number) {
+  private _adjustZoom(delta: number, focusX: number, focusY: number) {
 
     // find current location on screen
     const xScreen = focusX - this._offset.left - this.zoomElementLeft;
@@ -116,6 +125,8 @@ export class Zoom {
     this._lastScreenCoords.y = yScreen;
 
     this.setZoom(zoom, { x: this._lastElemCoords.x, y: this._lastElemCoords.y }, { x: xNew, y: yNew });
+
+    this.zoomed$.next();
   }
 
   private setZoom(zoom: number, origin: { x: number, y: number }, translate: { x: number, y: number}) {

@@ -1,20 +1,28 @@
 import { NgZone, Renderer2 } from '@angular/core';
+
 import { Zoom } from './zoom';
 import { Pan } from './pan';
 import { IFsZoomPanConfig } from '../interfaces/zoom-pan-config.interface';
+import { Subject } from 'rxjs';
 
 export class ZoomPan {
+
+  public zoomed$: Subject<boolean>;
+  public moved$: Subject<{ top: number, left: number}>;
+
   private _zoom: Zoom;
   private _pan: Pan;
-
   private _config: IFsZoomPanConfig;
-
 
   constructor(private _element: HTMLElement,
               private _zoomElement: HTMLElement,
               private _zone: NgZone,
               private _renderer: Renderer2) {
-    this.initialization();
+    this._zoom = new Zoom(this, this._element, this._zoomElement, this._zone, this._renderer);
+    this._pan = new Pan(this, this._element, this._zoomElement, this._zone, this._renderer);
+
+    this.moved$ = this._pan.moved$;
+    this.zoomed$ = this._zoom.zoomed$;
   }
 
   get config() {
@@ -42,11 +50,6 @@ export class ZoomPan {
 
     this.reset();
     this.move(left, top);
-  }
-
-  public initialization() {
-    this._zoom = new Zoom(this, this._element, this._zoomElement, this._zone, this._renderer);
-    this._pan = new Pan(this, this._element, this._zoomElement, this._zone, this._renderer);
   }
 
   public setConfig(config: IFsZoomPanConfig) {

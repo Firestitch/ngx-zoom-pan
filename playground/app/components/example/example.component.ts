@@ -37,6 +37,10 @@ export class ExampleComponent implements AfterViewInit {
     this.zoomPan.reset();
   }
 
+  public changed(data) {
+    console.log('Changed', data);
+  }
+
   ngAfterViewInit() {
     for (let i = 0; i < 200; i++) {
       this.add();
