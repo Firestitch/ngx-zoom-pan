@@ -97,8 +97,7 @@ export class Zoom {
     this.setOffset();
     event.preventDefault();
     let delta = event.deltaY || -event.detail; // @TODO process firefox event
-    delta = Math.max(-100, Math.min(100, (delta))) / 100;
-
+    delta = delta > 1 ? -1 : 1;
     const pageX = event.pageX;
     const pageY = event.pageY;
 
