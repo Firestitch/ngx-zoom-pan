@@ -19,7 +19,7 @@ import { FsZoomPanContentDirective } from './directives/fs-zoom-pan-content.dire
   ]
 })
 export class FsZoomPanModule {
-  static forRoot(): ModuleWithProviders {
+  static forRoot(): ModuleWithProviders<FsZoomPanModule> {
     return {
       ngModule: FsZoomPanModule
     };

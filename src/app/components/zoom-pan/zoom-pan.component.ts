@@ -29,7 +29,7 @@ export class FsZoomPanComponent implements  AfterViewInit, OnDestroy {
 
   @ViewChild('zoomable', { static: true }) public zoomable;
 
-  @ContentChild(FsZoomPanContentDirective, { static: false, read: TemplateRef })
+  @ContentChild(FsZoomPanContentDirective, { read: TemplateRef })
   public contentTemplate: TemplateRef<FsZoomPanContentDirective>;
 
   private _destroy$ = new Subject();

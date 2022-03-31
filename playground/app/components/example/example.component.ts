@@ -13,7 +13,7 @@ export class ExampleComponent implements AfterViewInit {
   @ViewChild(FsZoomPanComponent, { static: true })
   public zoomPan: FsZoomPanComponent;
 
-  @ViewChild(FsDiagramDirective, { static: false })
+  @ViewChild(FsDiagramDirective)
   public model: FsDiagramDirective;
 
   @ViewChild('zoomPanContaner', { static: true })
