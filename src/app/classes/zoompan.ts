@@ -33,6 +33,18 @@ export class ZoomPan {
     return this._zoom.scale;
   }
 
+  get zoomElementLeft() {
+    return this._pan.zoomElementLeft;
+  }
+
+  get zoomElementTop() {
+    return this._pan.zoomElementTop;
+  }
+
+  get zoomStep() {
+    return this._zoom.step;
+  }
+
   set scale(scale: number) {
     this._zoom.setScale(scale)
   }

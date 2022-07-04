@@ -42,6 +42,10 @@ export class Zoom {
     return this._zoomScale;
   }
 
+  get step() {
+    return this._zoomStep;
+  }
+
   public events() {
     this._wheelHandler = this.wheel.bind(this);
 
@@ -92,7 +96,6 @@ export class Zoom {
   }
 
   public wheel(event: WheelEvent) {
-
     // hack for now to keep the position updated of the zoom-pan container
     this.setOffset();
     event.preventDefault();
@@ -113,7 +116,7 @@ export class Zoom {
     this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this.scale);
     this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this.scale);
 
-    const zoom = this.validateZoom(this.scale + (delta * .1));
+    const zoom = this.validateZoom(this.scale + (delta * this.step));
 
     // determine the location on the screen at the new scale
     const xNew = (xScreen - this._lastElemCoords.x) / zoom;

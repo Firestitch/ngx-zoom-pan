@@ -106,9 +106,12 @@ export class Pan {
   }
 
   public move(left, top) {
-    if (this.zoomElementTop !== top && this.zoomElementLeft !== left) {
-      this._renderer.setStyle(this._zoomElement, 'top', `${top}px`);
+    if (this.zoomElementLeft !== left) {
       this._renderer.setStyle(this._zoomElement, 'left', `${left}px`);
+    }
+
+    if (this.zoomElementTop !== top) {
+      this._renderer.setStyle(this._zoomElement, 'top', `${top}px`);
       this.moved$.next({ left, top });
     }
   }
