@@ -9,14 +9,14 @@
     <ng-template fsZoomPanContent>
       <div fsDiagram>
         <div
-          *ngFor="let object of objects"
-          fsDiagramObject
-          #modelObject
-          (dragStop)="dragStop($event)"
-          [data]="object"
-          [scale]="zoomPan.scale"
-          [x1]="object.x1"
-          [y1]="object.y1">
+            *ngFor="let object of objects"
+            fsDiagramObject
+            #modelObject
+            (dragStop)="dragStop($event)"
+            [data]="object"
+            [scale]="zoomPan.scale"
+            [x1]="object.x1"
+            [y1]="object.y1">
           <button mat-icon-button (click)="remove(object)"><mat-icon>clear</mat-icon></button>
           <button mat-icon-button (click)="center(modelObject)"><mat-icon>gps_fixed</mat-icon></button>
           <div>{{object.name}}</div>

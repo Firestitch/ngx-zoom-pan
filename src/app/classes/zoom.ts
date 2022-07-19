@@ -7,6 +7,7 @@ import { ZoomPan } from './zoompan';
 export class Zoom {
 
   public zoomed$ = new Subject<any>();
+  public disabled = false;
 
   private _wheelHandler: EventListener;
 
@@ -21,13 +22,14 @@ export class Zoom {
 
   private _offset: { top: number, left: number };
 
-  constructor(private _zoomPan: ZoomPan,
-              private _element: HTMLElement,
-              private _zoomElement: HTMLElement,
-              private _zone: NgZone,
-              private _renderer: Renderer2) {
-    this.events();
-    this.setOffset();
+  constructor(
+    private _zoomPan: ZoomPan,
+    private _element: HTMLElement,
+    private _zoomElement: HTMLElement,
+    private _zone: NgZone,
+    private _renderer: Renderer2) {
+      this.events();
+      this.setOffset();
   }
 
   get zoomElementTop(): number {
@@ -96,15 +98,17 @@ export class Zoom {
   }
 
   public wheel(event: WheelEvent) {
-    // hack for now to keep the position updated of the zoom-pan container
-    this.setOffset();
-    event.preventDefault();
-    let delta = event.deltaY || -event.detail; // @TODO process firefox event
-    delta = delta > 1 ? -1 : 1;
-    const pageX = event.pageX;
-    const pageY = event.pageY;
+    if(!this.disabled) {
+      // hack for now to keep the position updated of the zoom-pan container
+      this.setOffset();
+      event.preventDefault();
+      let delta = event.deltaY || -event.detail; // @TODO process firefox event
+      delta = delta > 1 ? -1 : 1;
+      const pageX = event.pageX;
+      const pageY = event.pageY;
 
-    this._adjustZoom(delta, pageX, pageY);
+      this._adjustZoom(delta, pageX, pageY);
+    }
   }
 
   private _adjustZoom(delta: number, focusX: number, focusY: number) {

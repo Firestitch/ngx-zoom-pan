@@ -27,7 +27,8 @@ export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy 
   @Output() public moved = new EventEmitter();
   @Output() public zoomed = new EventEmitter();
 
-  @ViewChild('zoomable', { static: true }) public zoomable;
+  @ViewChild('zoomable', { static: true }) 
+  public zoomable;
 
   @ContentChild(FsZoomPanContentDirective, { read: TemplateRef })
   public contentTemplate: TemplateRef<FsZoomPanContentDirective>;
@@ -95,8 +96,8 @@ export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy 
     this._zoomPan.reset();
   }
 
-  public center(el: HTMLElement) {
-    this._zoomPan.center(el);
+  public center(el: HTMLElement, options: { horizontal?: boolean, vertical?: boolean } = {}) {
+    this._zoomPan.center(el, options);
   }
 
   public zoomIn() {
@@ -109,6 +110,14 @@ export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy 
 
   public zoomOut() {
     this._zoomPan.zoomOut();
+  }
+
+  public enable() {
+    this._zoomPan.enable();
+  }
+
+  public disable() {
+    this._zoomPan.disable();
   }
 
   public ngOnDestroy(): void {

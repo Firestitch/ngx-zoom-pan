@@ -7,7 +7,7 @@ import { ZoomPan } from './zoompan';
 export class Pan {
 
   public moved$ = new Subject<{ top: number, left: number}>();
-
+  public disabled = false;
   // handlers
   private _dragStartHandler: EventListener;
   private _dragEndHandler: EventListener;
@@ -27,12 +27,13 @@ export class Pan {
 
   private _dragStart = false;
 
-  constructor(private _zoomPan: ZoomPan,
-              private _element: HTMLElement,
-              private _zoomElement: HTMLElement,
-              private _zone: NgZone,
-              private _renderer: Renderer2) {
-    this.events();
+  constructor(
+    private _zoomPan: ZoomPan,
+    private _element: HTMLElement,
+    private _zoomElement: HTMLElement,
+    private _zone: NgZone,
+    private _renderer: Renderer2) {
+      this.events();
   }
 
   get zoomElementTop(): number {
@@ -81,13 +82,15 @@ export class Pan {
   }
 
   public dragStart(event: MouseEvent | TouchEvent) {
-    this._positionCoord = this.pointerEventToXY(event);
-    this._positionPage = {
-      top: this.zoomElementTop || -1,
-      left: this.zoomElementLeft || -1
-    };
+    if(!this.disabled) {
+      this._positionCoord = this.pointerEventToXY(event);
+      this._positionPage = {
+        top: this.zoomElementTop || -1,
+        left: this.zoomElementLeft || -1
+      };
 
-    this._dragStart = true;
+      this._dragStart = true;
+    }
   }
 
   public drag(event: MouseEvent | TouchEvent) {

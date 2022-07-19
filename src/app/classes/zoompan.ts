@@ -49,16 +49,15 @@ export class ZoomPan {
     this._zoom.setScale(scale)
   }
 
-  public center(el: HTMLElement) {
-
+  public center(el: HTMLElement, options: { horizontal?: boolean, vertical?: boolean } = {}) {
     const leftCenter = el.offsetLeft + (el.offsetWidth / 2);
     const topCenter = el.offsetTop + (el.offsetHeight / 2);
 
     const x = this._pan.getWidth() / 2;
     const y = this._pan.getHeight() / 2;
 
-    const left = (x - leftCenter);
-    const top = (y - topCenter);
+    const left = (options.horizontal ?? true) ? (x - leftCenter) : this.zoomElementLeft;
+    const top = (options.vertical ?? true) ? (y - topCenter) : this.zoomElementTop;
 
     this.reset();
     this.move(left, top);
@@ -92,5 +91,15 @@ export class ZoomPan {
   public destroy() {
     this._zoom.destroy();
     this._pan.destroy();
+  }
+
+  public disable() {
+    this._zoom.disabled = true;
+    this._pan.disabled = true;
+  }
+
+  public enable() {
+    this._zoom.disabled = false;
+    this._pan.disabled = false;
   }
 }
