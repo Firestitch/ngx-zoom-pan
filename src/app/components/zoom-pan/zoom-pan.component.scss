@@ -1,0 +1,17 @@
+:host {
+  position: relative;
+  width: 100%;
+  min-height: 100px;
+  display: block;
+  user-select: none;
+  overflow: hidden;
+
+  .fs-zoom-pan-container {
+    position: relative;
+    left: 0px;
+    top:0px;
+    user-drag: none;
+    -moz-user-drag: none;
+    display: block;
+  }
+}
