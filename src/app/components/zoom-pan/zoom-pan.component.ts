@@ -52,7 +52,7 @@ export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy 
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
-    if (changes.top.currentValue || changes.left.currentValue) {
+    if (changes.top || changes.left) {
       this._zoomPan?.move(this.left * this._zoomPan.scale, this.top * this._zoomPan.scale);
     }
   }
