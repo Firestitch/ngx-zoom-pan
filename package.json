@@ -46,7 +46,7 @@
     "@angular/router": "^12.2.16",
     "@compodoc/compodoc": "^1.1.7",
     "@firestitch/common": "^12.0.0",
-    "@firestitch/component-tools": "^12.0.8",
+    "@firestitch/component-tools": "^12.0.11",
     "@firestitch/diagram": "^12.0.0",
     "@firestitch/drawer": "^12.0.0",
     "@firestitch/example": "^12.0.0",
