@@ -6,7 +6,7 @@ import { ZoomPan } from './zoompan';
 
 export class Pan {
 
-  public moved$ = new Subject<{ top: number, left: number}>();
+  public moved$ = new Subject<{ top: number, left: number }>();
   public disabled = false;
   // handlers
   private _dragStartHandler: EventListener;
@@ -33,7 +33,7 @@ export class Pan {
     private _zoomElement: HTMLElement,
     private _zone: NgZone,
     private _renderer: Renderer2) {
-      this.events();
+    this.events();
   }
 
   get zoomElementTop(): number {
@@ -46,14 +46,14 @@ export class Pan {
 
   public events() {
     this._dragStartHandler = this.dragStart.bind(this);
-    this._dragEndHandler   = this.dragEnd.bind(this);
-    this._dragHandler      = this.drag.bind(this);
+    this._dragEndHandler = this.dragEnd.bind(this);
+    this._dragHandler = this.drag.bind(this);
 
     this._mouseDownListener = this._renderer.listen(
       this._element, 'mousedown', this._dragStartHandler
     );
 
-    this._mouseUpListener   = this._renderer.listen(
+    this._mouseUpListener = this._renderer.listen(
       this._element, 'mouseup', this._dragEndHandler
     );
 
@@ -82,7 +82,7 @@ export class Pan {
   }
 
   public dragStart(event: MouseEvent | TouchEvent) {
-    if(!this.disabled) {
+    if (!this.disabled) {
       this._positionCoord = this.pointerEventToXY(event);
       this._positionPage = {
         top: this.zoomElementTop || -1,
@@ -108,7 +108,12 @@ export class Pan {
     this.move(newLeft, newTop);
   }
 
-  public move(left, top) {
+  /**
+   * move top left corner of screen to new position
+   * @param left
+   * @param top
+   */
+  public move(left: number, top: number) {
     if (this.zoomElementLeft !== left) {
       this._renderer.setStyle(this._zoomElement, 'left', `${left}px`);
     }
@@ -132,6 +137,10 @@ export class Pan {
     return this._element.offsetWidth;
   }
 
+  public getHeight() {
+    return this._element.offsetHeight;
+  }
+
   public getZoomableWidth() {
     const el: any = this._element.querySelector('.zoomable');
     return el.offsetWidth;
@@ -142,8 +151,12 @@ export class Pan {
     return el.offsetHeight;
   }
 
-  public getHeight() {
-    return this._element.offsetHeight;
+  public getLeft(): number {
+    return this._zoomElement.offsetLeft;
+  }
+
+  public getTop(): number {
+    return this._zoomElement.offsetTop;
   }
 
   public destroy() {
@@ -156,7 +169,7 @@ export class Pan {
     this._touchMoveListener();
   }
 
-  private pointerEventToXY(event: MouseEvent | TouchEvent): { x: number, y: number } {
+  public pointerEventToXY(event: MouseEvent | TouchEvent): { x: number, y: number } {
     const out = { x: 0, y: 0 };
 
     if (event.type === 'touchstart'

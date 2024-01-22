@@ -1,7 +1,13 @@
 import {
   AfterViewInit, Component, ContentChild,
-  ElementRef, Input, NgZone, OnDestroy, Output,
-  Renderer2, TemplateRef, ViewChild, EventEmitter, OnChanges, SimpleChanges,
+  ElementRef,
+  EventEmitter,
+  Input, NgZone,
+  OnChanges,
+  OnDestroy, Output,
+  Renderer2,
+  SimpleChanges,
+  TemplateRef, ViewChild,
 } from '@angular/core';
 
 import { Subject } from 'rxjs';
@@ -14,9 +20,9 @@ import { IFsZoomPanConfig } from '../../interfaces/zoom-pan-config.interface';
 @Component({
   selector: 'fs-zoom-pan',
   templateUrl: 'zoom-pan.component.html',
-  styleUrls: ['zoom-pan.component.scss' ],
+  styleUrls: ['zoom-pan.component.scss'],
 })
-export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy {
+export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   @Input() public zoomMax = 2;
   @Input() public zoomMin = .1;
@@ -27,7 +33,7 @@ export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy 
   @Output() public moved = new EventEmitter();
   @Output() public zoomed = new EventEmitter();
 
-  @ViewChild('container', { static: true }) 
+  @ViewChild('container', { static: true })
   public container;
 
   @ContentChild(FsZoomPanContentDirective, { read: TemplateRef })
@@ -39,7 +45,7 @@ export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy 
   constructor(
     private _element: ElementRef,
     private _zone: NgZone,
-    private _renderer: Renderer2) {}
+    private _renderer: Renderer2) { }
 
   get scale() {
     return this._zoomPan.scale;
@@ -77,7 +83,7 @@ export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy 
 
         this._zoomPan.move(
           this._zoomPan.zoomElementLeft,
-          (this._zoomPan.zoomElementTop / prevZoomScale)  * this._zoomPan.scale
+          (this._zoomPan.zoomElementTop / prevZoomScale) * this._zoomPan.scale
         )
       });
 
@@ -96,21 +102,50 @@ export class FsZoomPanComponent implements  OnChanges, AfterViewInit, OnDestroy 
     this._zoomPan.reset();
   }
 
-  public center(el: HTMLElement, options: { horizontal?: boolean, vertical?: boolean } = {}) {
-    this._zoomPan.center(el, options);
+  /**
+   * move view to center on specified element
+   * @param el element to center on
+   * @param options horizontal: boolean - center horizonally (default true), vertical: boolean - center vertically (default true)
+   */
+  public centerOnElement(el: HTMLElement, options: { horizontal?: boolean, vertical?: boolean } = {}) {
+    this._zoomPan.centerOnElement(el, options);
+  }
+
+
+  /**
+   * get x,y coordinates at center of current view
+   */
+  public getCenter(): { x: number, y: number } {
+    return this._zoomPan.getCenter();
+  }
+
+  public zoom(scale: number) {
+    this._zoomPan.zoom(scale);
   }
 
   public zoomIn() {
     this._zoomPan.zoomIn();
   }
 
+  public zoomOut() {
+    this._zoomPan.zoomOut();
+  }
+
+
   public move(left, top) {
     this._zoomPan.move(left, top);
   }
 
-  public zoomOut() {
-    this._zoomPan.zoomOut();
+
+  /**
+   * move so specified coordinates are at center of view
+   * @param x
+   * @param y
+   */
+  public moveCenter(x: number, y: number) {
+    this._zoomPan.moveCenter(x, y);
   }
+
 
   public enable() {
     this._zoomPan.enable();

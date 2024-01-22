@@ -1,6 +1,6 @@
-import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { ConnectionOverlayType, FsDiagramDirective } from '@firestitch/diagram';
 import { FsZoomPanComponent } from '@firestitch/zoom-pan';
-import { FsDiagramDirective, ConnectionOverlayType } from '@firestitch/diagram';
 
 import { random } from 'lodash';
 
@@ -30,11 +30,21 @@ export class ExampleComponent implements AfterViewInit {
   }
 
   public center(el) {
-    this.zoomPan.center(el);
+    this.zoomPan.centerOnElement(el);
   }
 
   public reset() {
     this.zoomPan.reset();
+  }
+
+  public getCenter() {
+
+
+    const obj = this.objects[Math.floor(Math.random() * this.objects.length)];
+
+    const el = this.model.getDiagramObject(obj).element.nativeElement;
+
+    this.zoomPan.centerOnElement(el);
   }
 
   public changed(data) {
@@ -42,7 +52,7 @@ export class ExampleComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 30; i++) {
       this.add();
     }
   }
@@ -52,7 +62,6 @@ export class ExampleComponent implements AfterViewInit {
   }
 
   add() {
-
     const x1 = random(0, this.zoomPanContaner.nativeElement.offsetWidth - 100 - 4);
     const y1 = random(0, 600 - 150 - 4);
 
@@ -68,15 +77,15 @@ export class ExampleComponent implements AfterViewInit {
       const object2 = this.objects[idx];
 
       const config = {
-          overlays: [
-            {
-              type: ConnectionOverlayType.Label,
-              label: 'Label ' + idx
-            }
-          ],
-          data: {
-            object: object
+        overlays: [
+          {
+            type: ConnectionOverlayType.Label,
+            label: 'Label ' + idx
           }
+        ],
+        data: {
+          object: object
+        }
       };
 
       this.model.connect(object1, object2, config);
@@ -84,6 +93,6 @@ export class ExampleComponent implements AfterViewInit {
   }
 
   dragStop(e) {
-    console.log(e);
+    //console.log(e);
   }
 }
