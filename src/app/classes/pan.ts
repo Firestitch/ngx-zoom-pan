@@ -113,7 +113,11 @@ export class Pan {
    * @param left
    * @param top
    */
-  public move(left: number, top: number) {
+  public move(left: number, top: number, options: { slide?: boolean } = {}) {
+    if (options.slide) {
+      this.enableSlide();
+    }
+
     if (this.zoomElementLeft !== left) {
       this._renderer.setStyle(this._zoomElement, 'left', `${left}px`);
     }
@@ -121,6 +125,12 @@ export class Pan {
     if (this.zoomElementTop !== top) {
       this._renderer.setStyle(this._zoomElement, 'top', `${top}px`);
       this.moved$.next({ left, top });
+    }
+
+    if (options.slide) {
+      setTimeout(() => {
+        this.disableSlide();
+      }, 250);
     }
   }
 
@@ -194,4 +204,15 @@ export class Pan {
 
     return out;
   }
+
+
+  public enableSlide() {
+    this._renderer.setStyle(this._zoomElement, 'transition', 'top 0.25s ease, left 0.25s ease');
+  }
+  public disableSlide() {
+    this._renderer.setStyle(this._zoomElement, 'transition', '');
+  }
+
+
+
 }

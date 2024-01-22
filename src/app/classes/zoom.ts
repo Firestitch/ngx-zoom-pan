@@ -85,53 +85,12 @@ export class Zoom {
       { x: 0, y: 0 })
   }
 
-  // public destroy() {
-  //   this._wheelListener();
-  // }
-
-  // public wheel(event: WheelEvent) {
-  //   if (!this.disabled) {
-  //     // hack for now to keep the position updated of the zoom-pan container
-  //     this.setOffset();
-  //     event.preventDefault();
-  //     let delta = event.deltaY || -event.detail; // @TODO process firefox event
-  //     delta = delta > 1 ? -1 : 1;
-  //     const pageX = event.pageX;
-  //     const pageY = event.pageY;
-
-  //     this._adjustZoom(delta, pageX, pageY);
-  //   }
-  // }
-
 
   public adjustZoom(delta) {
     const zoom = this.validateZoom(this.scale + (delta * this.step));
     this.setZoom(zoom);
   }
 
-  private _adjustZoom(delta: number, focusX: number, focusY: number) {
-    // find current location on screen
-    const xScreen = focusX - this._offset.left - this.zoomElementLeft;
-    const yScreen = focusY - this._offset.top - this.zoomElementTop;
-
-    this._lastElemCoords.x = this._lastElemCoords.x + ((xScreen - this._lastScreenCoords.x) / this.scale);
-    this._lastElemCoords.y = this._lastElemCoords.y + ((yScreen - this._lastScreenCoords.y) / this.scale);
-
-    const zoom = this.validateZoom(this.scale + (delta * this.step));
-
-    // determine the location on the screen at the new scale
-    const xNew = (xScreen - this._lastElemCoords.x) / zoom;
-    const yNew = (yScreen - this._lastElemCoords.y) / zoom;
-
-    // save the current screen location
-    this._lastScreenCoords.x = xScreen;
-    this._lastScreenCoords.y = yScreen;
-
-    this.setZoom(zoom);
-    //this.setZoom(zoom, { x: this._lastElemCoords.x, y: this._lastElemCoords.y }, { x: xNew, y: yNew });
-
-    this.zoomed$.next();
-  }
 
 
 

@@ -111,6 +111,13 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
     this._zoomPan.centerOnElement(el, options);
   }
 
+  /**
+   * get x,y coordinates at center of specified element
+   * @param el
+   */
+  public getElementCenter(el: HTMLElement) {
+    return this._zoomPan.getElementCenter(el);
+  }
 
   /**
    * get x,y coordinates at center of current view
@@ -142,8 +149,8 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
    * @param x
    * @param y
    */
-  public moveCenter(x: number, y: number) {
-    this._zoomPan.moveCenter(x, y);
+  public moveCenter(x: number, y: number, options?: { slide?: boolean }) {
+    this._zoomPan.moveCenter(x, y, options);
   }
 
 

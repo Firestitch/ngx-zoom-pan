@@ -39,12 +39,12 @@ export class ExampleComponent implements AfterViewInit {
 
   public getCenter() {
 
-
     const obj = this.objects[Math.floor(Math.random() * this.objects.length)];
 
     const el = this.model.getDiagramObject(obj).element.nativeElement;
 
-    this.zoomPan.centerOnElement(el);
+    const center = this.zoomPan.getElementCenter(el);
+    this.zoomPan.moveCenter(center.x, center.y, { slide: true });
   }
 
   public changed(data) {

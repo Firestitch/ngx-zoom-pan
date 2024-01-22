@@ -109,14 +109,20 @@ export class ZoomPan {
    * @param el
    * @param options
    */
-  public centerOnElement(el: HTMLElement, options: { horizontal?: boolean, vertical?: boolean } = {}) {
+  public centerOnElement(el: HTMLElement, options: { horizontal?: boolean, vertical?: boolean, slide?: boolean } = {}) {
     this.moveCenter(
       el.offsetLeft + (el.offsetWidth / 2),
-      el.offsetTop + (el.offsetHeight / 2)
+      el.offsetTop + (el.offsetHeight / 2),
+      options
     );
   }
 
-
+  public getElementCenter(el: HTMLElement) {
+    return {
+      x: el.offsetLeft + (el.offsetWidth / 2),
+      y: el.offsetTop + (el.offsetHeight / 2)
+    }
+  }
 
   /**
    * get x,y coordinates at center of current view
@@ -133,8 +139,8 @@ export class ZoomPan {
    * @param left
    * @param top
    */
-  public move(left: number, top: number) {
-    this._pan.move(left, top);
+  public move(left: number, top: number, options?: { slide?: boolean }) {
+    this._pan.move(left, top, options);
   }
 
 
@@ -143,13 +149,13 @@ export class ZoomPan {
    * @param x
    * @param y
    */
-  public moveCenter(x: number, y: number) {
+  public moveCenter(x: number, y: number, options?: { slide?: boolean }) {
     x = x - (this._pan.getWidth() / 2 / this._zoom.scale);
     y = y - (this._pan.getHeight() / 2 / this._zoom.scale);
 
     const left = - (x * this._zoom.scale);
     const top = - (y * this._zoom.scale);
-    this.move(left, top);
+    this.move(left, top, options);
   }
 
 
