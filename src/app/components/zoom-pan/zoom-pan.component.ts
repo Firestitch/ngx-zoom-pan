@@ -45,7 +45,13 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
   constructor(
     private _element: ElementRef,
     private _zone: NgZone,
-    private _renderer: Renderer2) { }
+    private _renderer: Renderer2
+  ) { }
+
+
+  get element() {
+    return this._element;
+  }
 
   get scale() {
     return this._zoomPan.scale;
