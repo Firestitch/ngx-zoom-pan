@@ -32,7 +32,7 @@ const routes: Routes = [
         FsExampleModule.forRoot(),
         ToastrModule.forRoot({ preventDuplicates: true }),
         FsMessageModule.forRoot(),
-        RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' }),
+        RouterModule.forRoot(routes, {}),
         FsDiagramModule
     ],
     declarations: [
