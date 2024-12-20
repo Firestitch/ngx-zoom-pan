@@ -1,5 +1,5 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ModuleWithProviders, NgModule } from '@angular/core';
 
 import { FsZoomPanComponent } from './components/zoom-pan/zoom-pan.component';
 import { FsZoomPanContentDirective } from './directives/fs-zoom-pan-content.directive';
@@ -7,21 +7,21 @@ import { FsZoomPanContentDirective } from './directives/fs-zoom-pan-content.dire
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
   ],
   exports: [
     FsZoomPanComponent,
-    FsZoomPanContentDirective
+    FsZoomPanContentDirective,
   ],
   declarations: [
     FsZoomPanComponent,
-    FsZoomPanContentDirective
-  ]
+    FsZoomPanContentDirective,
+  ],
 })
 export class FsZoomPanModule {
-  static forRoot(): ModuleWithProviders<FsZoomPanModule> {
+  public static forRoot(): ModuleWithProviders<FsZoomPanModule> {
     return {
-      ngModule: FsZoomPanModule
+      ngModule: FsZoomPanModule,
     };
   }
 }

@@ -1,4 +1,7 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, ViewChild,
+} from '@angular/core';
+
 import { ConnectionOverlayType, FsDiagramDirective } from '@firestitch/diagram';
 import { FsZoomPanComponent } from '@firestitch/zoom-pan';
 
@@ -6,8 +9,9 @@ import { random } from 'lodash';
 
 @Component({
   selector: 'example',
-  templateUrl: 'example.component.html',
-  styleUrls: ['./example.component.scss']
+  templateUrl: './example.component.html',
+  styleUrls: ['./example.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExampleComponent implements AfterViewInit {
   @ViewChild(FsZoomPanComponent, { static: true })
@@ -20,6 +24,8 @@ export class ExampleComponent implements AfterViewInit {
   public zoomPanContaner: ElementRef;
 
   public objects = [];
+
+  private _cdRef = inject(ChangeDetectorRef);
 
   public zoomIn() {
     this.zoomPan.zoomIn();
@@ -38,7 +44,6 @@ export class ExampleComponent implements AfterViewInit {
   }
 
   public getCenter() {
-
     const obj = this.objects[Math.floor(Math.random() * this.objects.length)];
 
     const el = this.model.getDiagramObject(obj).element.nativeElement;
@@ -47,27 +52,33 @@ export class ExampleComponent implements AfterViewInit {
     this.zoomPan.moveCenter(center.x, center.y, { slide: true });
   }
 
-  public changed(data) {
-    console.log('Changed', data);
+  public moved(data) {
+    console.log('Moved', data);
   }
 
-  ngAfterViewInit() {
+  public zoomed(data) {
+    console.log('Zoomed', data);
+  }
+
+  public ngAfterViewInit() {
     for (let i = 0; i < 30; i++) {
       this.add();
     }
+
+    this._cdRef.markForCheck();
   }
 
-  remove(object) {
-    this.objects = this.objects.filter(obj => obj !== object);
+  public remove(object) {
+    this.objects = this.objects.filter((obj) => obj !== object);
   }
 
-  add() {
+  public add() {
     const x1 = random(0, this.zoomPanContaner.nativeElement.offsetWidth - 100 - 4);
     const y1 = random(0, 600 - 150 - 4);
 
     const idx = this.objects.length;
 
-    const object = { name: 'Object ' + (idx + 1), x1: x1, y1: y1, id: idx + 1 };
+    const object = { name: `Object ${  idx + 1}`, x1: x1, y1: y1, id: idx + 1 };
 
     this.objects.push(object);
 
@@ -80,19 +91,19 @@ export class ExampleComponent implements AfterViewInit {
         overlays: [
           {
             type: ConnectionOverlayType.Label,
-            label: 'Label ' + idx
-          }
+            label: `Label ${  idx}`,
+          },
         ],
         data: {
-          object: object
-        }
+          object: object,
+        },
       };
 
       this.model.connect(object1, object2, config);
     }
   }
 
-  dragStop(e) {
+  public dragStop(e) {
     //console.log(e);
   }
 }

@@ -1,5 +1,5 @@
 import {
-  AfterViewInit, Component, ContentChild,
+  AfterViewInit, ChangeDetectionStrategy, Component, ContentChild,
   ElementRef,
   EventEmitter,
   Input, NgZone,
@@ -13,14 +13,16 @@ import {
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+import { IFsZoomPanConfig } from 'src/app/interfaces/zoom-pan-config.interface';
+
 import { ZoomPan } from '../../classes/zoompan';
 import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content.directive';
-import { IFsZoomPanConfig } from '../../interfaces/zoom-pan-config.interface';
 
 @Component({
   selector: 'fs-zoom-pan',
-  templateUrl: 'zoom-pan.component.html',
-  styleUrls: ['zoom-pan.component.scss'],
+  templateUrl: './zoom-pan.component.html',
+  styleUrls: ['./zoom-pan.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
 
@@ -30,8 +32,8 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input() public top = 0;
   @Input() public left = 0;
 
-  @Output() public moved = new EventEmitter();
-  @Output() public zoomed = new EventEmitter();
+  @Output() public moved = new EventEmitter<{ top: number, left: number }>();
+  @Output() public zoomed = new EventEmitter<number>();
 
   @ViewChild('container', { static: true })
   public container;
@@ -45,19 +47,18 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
   constructor(
     private _element: ElementRef,
     private _zone: NgZone,
-    private _renderer: Renderer2
+    private _renderer: Renderer2,
   ) { }
 
-
-  get element() {
+  public get element() {
     return this._element;
   }
 
-  get scale() {
+  public get scale() {
     return this._zoomPan.scale;
   }
 
-  set scale(scale: number) {
+  public set scale(scale: number) {
     if (this._zoomPan) {
       this._zoomPan.scale = scale;
     }
@@ -70,7 +71,17 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
   }
 
   public ngAfterViewInit() {
-    this._zoomPan = new ZoomPan(this._element.nativeElement, this.container.nativeElement, this._zone, this._renderer);
+    const config: IFsZoomPanConfig = {
+      zoomMax: this.zoomMax,
+      zoomMin: this.zoomMin,
+      zoomDefault: this.zoomDefault,
+    };
+
+    this._zoomPan = new ZoomPan(
+      config,
+      this._element.nativeElement,
+      this.container.nativeElement, 
+      this._renderer);
 
     if (this.top || this.left) {
       this._zoomPan.move(this.left, this.top);
@@ -89,8 +100,8 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
 
         this._zoomPan.move(
           this._zoomPan.zoomElementLeft,
-          (this._zoomPan.zoomElementTop / prevZoomScale) * this._zoomPan.scale
-        )
+          (this._zoomPan.zoomElementTop / prevZoomScale) * this._zoomPan.scale,
+        );
       });
 
     this._zoomPan.moved$
@@ -100,8 +111,6 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
       .subscribe((data) => {
         this.moved.emit(data);
       });
-
-    this.setConfig();
   }
 
   public reset() {
@@ -172,16 +181,6 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
     this._zoomPan.destroy();
     this._destroy$.next(null);
     this._destroy$.complete();
-  }
-
-  private setConfig() {
-    const config: IFsZoomPanConfig = {
-      zoomMax: this.zoomMax,
-      zoomMin: this.zoomMin,
-      zoomDefault: this.zoomDefault
-    };
-
-    this._zoomPan.setConfig(config);
   }
 
 }

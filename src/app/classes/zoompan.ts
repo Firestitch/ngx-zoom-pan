@@ -1,79 +1,62 @@
-import { NgZone, Renderer2 } from '@angular/core';
+import { Renderer2 } from '@angular/core';
 
-import { Subject } from 'rxjs';
+import { fromEvent, Observable, Subject, takeUntil, tap } from 'rxjs';
+
 import { IFsZoomPanConfig } from '../interfaces/zoom-pan-config.interface';
+
 import { Pan } from './pan';
 import { Zoom } from './zoom';
 
 export class ZoomPan {
 
-  public zoomed$: Subject<boolean>;
-  public moved$: Subject<{ top: number, left: number }>;
+  private _destroy$ = new Subject();
 
   private _zoom: Zoom;
   private _pan: Pan;
-  private _config: IFsZoomPanConfig;
 
-
-  private _wheelHandler: EventListener;
-
-  // listeners
-  private _wheelListener: Function;
-
-
-  constructor(private _element: HTMLElement,
+  constructor(
+    private _config: IFsZoomPanConfig,
+    private _element: HTMLElement,
     private _zoomElement: HTMLElement,
-    private _zone: NgZone,
-    private _renderer: Renderer2
+    private _renderer: Renderer2,
   ) {
-    this._zoom = new Zoom(this, this._element, this._zoomElement, this._zone, this._renderer);
-    this._pan = new Pan(this, this._element, this._zoomElement, this._zone, this._renderer);
-
-    this.moved$ = this._pan.moved$;
-    this.zoomed$ = this._zoom.zoomed$;
+    this._zoom = new Zoom(this._config, this._element, this._zoomElement, this._renderer);
+    this._pan = new Pan(this._element, this._zoomElement, this._renderer);
 
     this.events();
   }
 
+  public get moved$(): Observable<{ top: number, left: number }> {
+    return this._pan.moved$;
+  }
 
+  public get zoomed$(): Observable<number> {
+    return this._zoom.zoomed$;
+  }
 
-
-
-  get config() {
+  public get config() {
     return this._config;
   }
 
-
-  public setConfig(config: IFsZoomPanConfig) {
-    this._config = config;
-
-    if (this._config.zoomDefault !== 1) {
-      this.scale = this._config.zoomDefault;
-    }
-  }
-
-
-  get scale() {
+  public get scale() {
     return this._zoom.scale;
   }
 
-  get zoomElementLeft() {
+  public set scale(scale: number) {
+    this._zoom.setScale(scale);
+  }
+
+  public get zoomElementLeft() {
     return this._pan.zoomElementLeft;
   }
 
-  get zoomElementTop() {
+  public get zoomElementTop() {
     return this._pan.zoomElementTop;
   }
 
-  get zoomStep() {
+  public get zoomStep() {
     return this._zoom.step;
   }
-
-  set scale(scale: number) {
-    this._zoom.setScale(scale)
-  }
-
-
 
   /**
    * reset zoom and pan to default values
@@ -83,11 +66,10 @@ export class ZoomPan {
     this._pan.reset();
   }
 
-
-
   public destroy() {
-    this._zoom.destroy();
     this._pan.destroy();
+    this._destroy$.next(null);
+    this._destroy$.complete();
   }
 
   public disable() {
@@ -100,28 +82,27 @@ export class ZoomPan {
     this._pan.disabled = false;
   }
 
-
-
-
-
   /**
    * move contents so that the element is centered in the viewport
    * @param el
    * @param options
    */
-  public centerOnElement(el: HTMLElement, options: { horizontal?: boolean, vertical?: boolean, slide?: boolean } = {}) {
+  public centerOnElement(
+    el: HTMLElement, 
+    options: { horizontal?: boolean, vertical?: boolean, slide?: boolean } = {},
+  ) {
     this.moveCenter(
       el.offsetLeft + (el.offsetWidth / 2),
       el.offsetTop + (el.offsetHeight / 2),
-      options
+      options,
     );
   }
 
   public getElementCenter(el: HTMLElement) {
     return {
       x: el.offsetLeft + (el.offsetWidth / 2),
-      y: el.offsetTop + (el.offsetHeight / 2)
-    }
+      y: el.offsetTop + (el.offsetHeight / 2),
+    };
   }
 
   /**
@@ -143,7 +124,6 @@ export class ZoomPan {
     this._pan.move(left, top, options);
   }
 
-
   /**
    * move so that the specified point is at the center of the viewport
    * @param x
@@ -157,7 +137,6 @@ export class ZoomPan {
     const top = - (y * this._zoom.scale);
     this.move(left, top, options);
   }
-
 
   /**
    * zoom to the specified scale, keeping the current center in the same position
@@ -187,21 +166,17 @@ export class ZoomPan {
     this.moveCenter(center.x, center.y);
   }
 
-
-
   /**
    * listen for mousewheel events
    */
   public events() {
-    this._wheelHandler = this.wheel.bind(this);
-
-    this._zone.runOutsideAngular(() => {
-      this._wheelListener = this._renderer.listen(
-        this._element, 'wheel', this._wheelHandler
-      );
-    });
+    fromEvent(this._element, 'wheel')
+      .pipe(
+        tap((event: WheelEvent) => this.wheel(event)),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
   }
-
 
   /**
    * when mouse wheel is scrolled zoom in/out and move so that the mouse is at the same position on the content afterwards
@@ -240,6 +215,5 @@ export class ZoomPan {
 
     this.move(left, top);
   }
-
 
 }

@@ -1,13 +1,44 @@
 <div fxFlexLayout="row">
-  <button mat-icon-button (click)="zoomIn()"><mat-icon>zoom_in</mat-icon></button>
-  <button mat-icon-button (click)="zoomOut()"><mat-icon>zoom_out</mat-icon></button>
-  <button mat-icon-button (click)="reset()"><mat-icon>youtube_searched_for</mat-icon></button>
-  <button mat-icon-button (click)="add()"><mat-icon>add</mat-icon></button>
-  <button mat-icon-button (click)="getCenter()"><mat-icon>filter_center_focus</mat-icon></button>
+  <button
+      mat-icon-button
+      (click)="zoomIn()">
+    <mat-icon>
+      zoom_in
+    </mat-icon>
+  </button>
+  <button
+      mat-icon-button
+      (click)="zoomOut()">
+    <mat-icon>
+      zoom_out
+    </mat-icon>
+  </button>
+  <button
+      mat-icon-button
+      (click)="reset()">
+    <mat-icon>
+      youtube_searched_for
+    </mat-icon>
+  </button>
+  <button
+      mat-icon-button
+      (click)="add()">
+    <mat-icon>
+      add
+    </mat-icon>
+  </button>
+  <button
+      mat-icon-button
+      (click)="getCenter()">
+    <mat-icon>
+      filter_center_focus
+    </mat-icon>
+  </button>
 </div>
 <div #zoomPanContaner>
-  <fs-zoom-pan>
-    <!-- (zoomed)="changed($event)" (moved)="changed($event)" -->
+  <fs-zoom-pan
+      (zoomed)="zoomed($event)"
+      (moved)="moved($event)">
     <ng-template fsZoomPanContent>
       <div fsDiagram>
         <div
@@ -19,13 +50,25 @@
             [scale]="zoomPan.scale"
             [x1]="object.x1"
             [y1]="object.y1">
-          <button mat-icon-button (click)="remove(object)"><mat-icon>clear</mat-icon></button>
-          <button mat-icon-button (click)="center(modelObject)"><mat-icon>gps_fixed</mat-icon></button>
-          <div>{{object.name}}</div>
+          <button
+              mat-icon-button
+              (click)="remove(object)">
+            <mat-icon>
+              clear
+            </mat-icon>
+          </button>
+          <button
+              mat-icon-button
+              (click)="center(modelObject)">
+            <mat-icon>
+              gps_fixed
+            </mat-icon>
+          </button>
+          <div>
+            {{ object.name }}
+          </div>
         </div>
       </div>
     </ng-template>
   </fs-zoom-pan>
 </div>
-
-

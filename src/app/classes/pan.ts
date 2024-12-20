@@ -1,84 +1,88 @@
-import { NgZone, Renderer2 } from '@angular/core';
+import { Renderer2 } from '@angular/core';
 
-import { Subject } from 'rxjs';
+import { fromEvent, Observable, Subject, takeUntil, tap } from 'rxjs';
 
-import { ZoomPan } from './zoompan';
 
 export class Pan {
 
-  public moved$ = new Subject<{ top: number, left: number }>();
   public disabled = false;
-  // handlers
-  private _dragStartHandler: EventListener;
-  private _dragEndHandler: EventListener;
-  private _dragHandler: EventListener;
-
-  // listeners
-  private _mouseDownListener: Function;
-  private _mouseUpListener: Function;
-  private _mouseMoveListener: Function;
-  private _mouseLeaveListener: Function;
-  private _touchStartListener: Function;
-  private _touchEndListener: Function;
-  private _touchMoveListener: Function;
 
   private _positionCoord: { x: number, y: number };
   private _positionPage: { left: number, top: number };
-
+  private _destroy$ = new Subject<void>();
+  private _moved$ = new Subject<{ top: number, left: number }>();
   private _dragStart = false;
 
   constructor(
-    private _zoomPan: ZoomPan,
     private _element: HTMLElement,
     private _zoomElement: HTMLElement,
-    private _zone: NgZone,
-    private _renderer: Renderer2) {
+    private _renderer: Renderer2,
+  ) {
     this.events();
   }
 
-  get zoomElementTop(): number {
-    return parseInt(this._zoomElement.style.top) || 0 // without 'px' sufix
+  public get moved$(): Observable<{ top: number, left: number }> {
+    return this._moved$.asObservable();
   }
 
-  get zoomElementLeft(): number {
-    return parseInt(this._zoomElement.style.left) || 0 // without 'px' sufix
+  public get zoomElementTop(): number {
+    return parseInt(this._zoomElement.style.top) || 0; // without 'px' sufix
+  }
+
+  public get zoomElementLeft(): number {
+    return parseInt(this._zoomElement.style.left) || 0; // without 'px' sufix
   }
 
   public events() {
-    this._dragStartHandler = this.dragStart.bind(this);
-    this._dragEndHandler = this.dragEnd.bind(this);
-    this._dragHandler = this.drag.bind(this);
+    fromEvent(this._element, 'mousedown')
+      .pipe(
+        tap((event: MouseEvent) => this.dragStart(event)),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
 
-    this._mouseDownListener = this._renderer.listen(
-      this._element, 'mousedown', this._dragStartHandler
-    );
+    fromEvent(this._element, 'mouseup')
+      .pipe(
+        tap(() => this.dragEnd()),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
 
-    this._mouseUpListener = this._renderer.listen(
-      this._element, 'mouseup', this._dragEndHandler
-    );
+    fromEvent(this._element, 'mousemove')
+      .pipe(
+        tap((event: MouseEvent) => this.drag(event)),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
 
-    this._touchStartListener = this._renderer.listen(
-      this._element, 'touchstart', this._dragStartHandler
-    );
+    fromEvent(this._element, 'mouseleave')
+      .pipe(
+        tap(() => this.dragEnd()),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
 
-    this._touchEndListener = this._renderer.listen(
-      this._element, 'touchend', this._dragEndHandler
-    );
 
-    this._zone.runOutsideAngular(() => {
-      this._mouseMoveListener = this._renderer.listen(
-        this._element, 'mousemove', this._dragHandler
-      );
+    fromEvent(this._element, 'touchstart')
+      .pipe(
+        tap((event: TouchEvent) => this.dragStart(event)),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
 
-      this._mouseLeaveListener = this._renderer.listen(
-        this._element, 'mouseleave', this._dragEndHandler
-      );
+    fromEvent(this._element, 'touchend')
+      .pipe(
+        tap(() => this.dragEnd()),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
 
-      this._touchMoveListener = this._renderer.listen(
-        this._element, 'touchmove', this._dragHandler
-      );
-
-    })
+    fromEvent(this._element, 'touchmove')
+      .pipe(
+        tap((event: TouchEvent) => this.drag(event)),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
   }
 
   public dragStart(event: MouseEvent | TouchEvent) {
@@ -86,7 +90,7 @@ export class Pan {
       this._positionCoord = this.pointerEventToXY(event);
       this._positionPage = {
         top: this.zoomElementTop || -1,
-        left: this.zoomElementLeft || -1
+        left: this.zoomElementLeft || -1,
       };
 
       this._dragStart = true;
@@ -124,7 +128,7 @@ export class Pan {
 
     if (this.zoomElementTop !== top) {
       this._renderer.setStyle(this._zoomElement, 'top', `${top}px`);
-      this.moved$.next({ left, top });
+      this._moved$.next({ left, top });
     }
 
     if (options.slide) {
@@ -134,7 +138,7 @@ export class Pan {
     }
   }
 
-  public dragEnd(event: MouseEvent | TouchEvent) {
+  public dragEnd() {
     this._dragStart = false;
   }
 
@@ -153,11 +157,13 @@ export class Pan {
 
   public getZoomableWidth() {
     const el: any = this._element.querySelector('.zoomable');
+
     return el.offsetWidth;
   }
 
   public getZoomableHeight() {
     const el: any = this._element.querySelector('.zoomable');
+
     return el.offsetHeight;
   }
 
@@ -170,13 +176,8 @@ export class Pan {
   }
 
   public destroy() {
-    this._mouseDownListener();
-    this._mouseUpListener();
-    this._mouseMoveListener();
-    this._mouseLeaveListener();
-    this._touchStartListener();
-    this._touchEndListener();
-    this._touchMoveListener();
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 
   public pointerEventToXY(event: MouseEvent | TouchEvent): { x: number, y: number } {
@@ -212,7 +213,6 @@ export class Pan {
   public disableSlide() {
     this._renderer.setStyle(this._zoomElement, 'transition', '');
   }
-
 
 
 }
