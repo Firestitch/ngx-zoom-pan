@@ -18,6 +18,7 @@ import { IFsZoomPanConfig } from 'src/app/interfaces/zoom-pan-config.interface';
 import { ZoomPan } from '../../classes/zoompan';
 import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content.directive';
 
+
 @Component({
   selector: 'fs-zoom-pan',
   templateUrl: './zoom-pan.component.html',

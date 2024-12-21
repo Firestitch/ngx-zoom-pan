@@ -14,11 +14,12 @@ import { random } from 'lodash';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExampleComponent implements AfterViewInit {
+
   @ViewChild(FsZoomPanComponent, { static: true })
   public zoomPan: FsZoomPanComponent;
 
   @ViewChild(FsDiagramDirective)
-  public model: FsDiagramDirective;
+  public diagram: FsDiagramDirective;
 
   @ViewChild('zoomPanContaner', { static: true })
   public zoomPanContaner: ElementRef;
@@ -46,7 +47,7 @@ export class ExampleComponent implements AfterViewInit {
   public getCenter() {
     const obj = this.objects[Math.floor(Math.random() * this.objects.length)];
 
-    const el = this.model.getDiagramObject(obj).element.nativeElement;
+    const el = this.diagram.getDiagramObject(obj).element.nativeElement;
 
     const center = this.zoomPan.getElementCenter(el);
     this.zoomPan.moveCenter(center.x, center.y, { slide: true });
@@ -99,11 +100,11 @@ export class ExampleComponent implements AfterViewInit {
         },
       };
 
-      this.model.connect(object1, object2, config);
+      this.diagram.connect(object1, object2, config);
     }
   }
 
-  public dragStop(e) {
+  public dragStop() {
     //console.log(e);
   }
 }
