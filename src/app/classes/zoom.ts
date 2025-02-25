@@ -11,6 +11,7 @@ export class Zoom {
   public _lastScreenCoords = { x: 0, y: 0 };
   public _lastElemCoords = { x: 0, y: 0 };
   public _lastZoomScale = 1;
+  public _defaultZoom = 1;
 
   private _offset: { top: number, left: number };
   private _zoomScale = 1;
@@ -27,7 +28,12 @@ export class Zoom {
     this._zoomScale = this._config.zoomScale || 1;
     this._zoomFactor = this._config.zoomFactor || 0.2;
     this._lastZoomScale = this._zoomScale;
+    this._defaultZoom = this._config.zoomDefault || 1;
     this._listenOffset();
+    
+    if(this._defaultZoom !== 1) {
+      this._setZoom(this._config.zoomDefault);
+    }
   }
 
   public get zoomElementTop(): number {
@@ -51,7 +57,7 @@ export class Zoom {
   }
 
   public reset() {
-    this._setZoom(this._config.zoomDefault);
+    this._setZoom(this._defaultZoom);
   }
 
   public zoomIn() {

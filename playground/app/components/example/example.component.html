@@ -37,6 +37,7 @@
 </div>
 <div #zoomPanContaner>
   <fs-zoom-pan
+      [zoomDefault]="1.1"
       [zoomFactor]=".5"
       [zoomMax]="10"
       (zoomed)="zoomed($event)"
