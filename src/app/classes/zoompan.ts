@@ -1,6 +1,6 @@
 import { Renderer2 } from '@angular/core';
 
-import { fromEvent, Observable, Subject, takeUntil, tap } from 'rxjs';
+import { fromEvent, Observable, Subject, takeUntil, tap, throttleTime } from 'rxjs';
 
 import { IFsZoomPanConfig } from '../interfaces/zoom-pan-config.interface';
 
@@ -88,7 +88,7 @@ export class ZoomPan {
    * @param options
    */
   public centerOnElement(
-    el: HTMLElement, 
+    el: HTMLElement,
     options: { horizontal?: boolean, vertical?: boolean, slide?: boolean } = {},
   ) {
     this.moveCenter(
@@ -172,6 +172,8 @@ export class ZoomPan {
   public events() {
     fromEvent(this._element, 'wheel')
       .pipe(
+        tap((event: WheelEvent) => event.preventDefault()),
+        throttleTime(20),
         tap((event: WheelEvent) => this.wheel(event)),
         takeUntil(this._destroy$),
       )
@@ -179,14 +181,16 @@ export class ZoomPan {
   }
 
   /**
-   * when mouse wheel is scrolled zoom in/out and move so that the mouse is at the same position on the content afterwards
+   * when mouse wheel is scrolled zoom in/out and move so that the mouse is at the same position
+   * on the content afterwards
    */
   public wheel(event: WheelEvent) {
     if (!this._zoom.disabled) {
-      event.preventDefault();
 
-      let delta = event.deltaY || -event.detail; // @TODO process firefox event
-      delta = delta > 1 ? -1 : 1;
+      const delta = event.deltaY || -event.detail; // @TODO process firefox event
+      const roundedDelta = delta > 0 ? -1 : 1;
+
+      //console.log('wheel delta', delta, roundedDelta);
 
       const viewPosition = {
         x: event.pageX - this._zoom.getOffset().left,
@@ -198,13 +202,14 @@ export class ZoomPan {
         y: (-this._pan.getTop() / this._zoom.scale) + (viewPosition.y / this._zoom.scale),
       };
 
-      this._zoom.adjustZoom(delta);
+      this._zoom.adjustZoom(roundedDelta);
       this.alignPosition(contentPosition, viewPosition);
     }
   }
 
   /**
-   * move the zoom-pan container so that the specified position is at the same position on the screen
+   * move the zoom-pan container so that the specified position is at the same position
+   * on the screen
    */
   public alignPosition(contentPosition: { x: number, y: number }, viewPosition: { x: number, y: number }) {
     const x = contentPosition.x - (viewPosition.x / this._zoom.scale);

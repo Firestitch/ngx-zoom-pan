@@ -54,17 +54,17 @@ export class ExampleComponent implements AfterViewInit {
   }
 
   public moved(data) {
-    console.log('Moved', data);
+    //console.log('Moved', data);
   }
 
   public zoomed(data) {
-    console.log('Zoomed', data);
+    //console.log('Zoomed', data);
   }
 
   public ngAfterViewInit() {
-    for (let i = 0; i < 30; i++) {
-      this.add();
-    }
+    // for (let i = 0; i < 30; i++) {
+    //   this.add();
+    // }
 
     this._cdRef.markForCheck();
   }
