@@ -15,7 +15,7 @@ export class Zoom {
 
   private _offset: { top: number, left: number };
   private _zoomScale = 1;
-  private _zoomStep = 0.1;
+  private _zoomFactor = 0.1;
   private _zoomed$ = new Subject<number>();
 
   constructor(
@@ -24,6 +24,9 @@ export class Zoom {
     private _zoomElement: HTMLElement,
     private _renderer: Renderer2,
   ) {
+    this._zoomScale = this._config.zoomScale || 1;
+    this._zoomFactor = this._config.zoomFactor || 0.1;
+    this._lastZoomScale = this._zoomScale;
     this._setOffset();
   }
 
@@ -40,7 +43,7 @@ export class Zoom {
   }
 
   public get step() {
-    return this._zoomStep;
+    return this._zoomFactor;
   }
 
   public get zoomed$(): Observable<number> {
@@ -52,13 +55,13 @@ export class Zoom {
   }
 
   public zoomIn() {
-    const newScale = this._zoomScale + this._zoomStep;
+    const newScale = this._zoomScale + this._zoomFactor;
 
     this._setZoom(newScale);
   }
 
   public zoomOut() {
-    const newScale = this.scale - this._zoomStep;
+    const newScale = this.scale - this._zoomFactor;
 
     this._setZoom(newScale);
   }

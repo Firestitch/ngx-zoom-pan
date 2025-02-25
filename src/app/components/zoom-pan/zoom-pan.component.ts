@@ -1,10 +1,10 @@
 import {
-  AfterViewInit, ChangeDetectionStrategy, Component, ContentChild,
+  ChangeDetectionStrategy, Component, ContentChild,
   ElementRef,
   EventEmitter,
-  Input, NgZone,
+  Input,
   OnChanges,
-  OnDestroy, Output,
+  OnDestroy, OnInit, Output,
   Renderer2,
   SimpleChanges,
   TemplateRef, ViewChild,
@@ -25,11 +25,13 @@ import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content.
   styleUrls: ['./zoom-pan.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
+export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() public zoomMax = 2;
   @Input() public zoomMin = .1;
+  @Input() public zoomScale = 1;
   @Input() public zoomDefault = 1;
+  @Input() public zoomFactor = 1;
   @Input() public top = 0;
   @Input() public left = 0;
 
@@ -47,7 +49,6 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
 
   constructor(
     private _element: ElementRef,
-    private _zone: NgZone,
     private _renderer: Renderer2,
   ) { }
 
@@ -65,17 +66,13 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
     }
   }
 
-  public ngOnChanges(changes: SimpleChanges): void {
-    if (changes.top || changes.left) {
-      this._zoomPan?.move(this.left * this._zoomPan.scale, this.top * this._zoomPan.scale);
-    }
-  }
-
-  public ngAfterViewInit() {
+  public ngOnInit(): void {
     const config: IFsZoomPanConfig = {
       zoomMax: this.zoomMax,
       zoomMin: this.zoomMin,
       zoomDefault: this.zoomDefault,
+      zoomScale: this.zoomScale,
+      zoomFactor: this.zoomFactor,
     };
 
     this._zoomPan = new ZoomPan(
@@ -96,8 +93,8 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
         this.zoomed.emit(data);
 
         const prevZoomScale = data
-          ? this._zoomPan.scale - this._zoomPan.zoomStep
-          : this._zoomPan.scale + this._zoomPan.zoomStep;
+          ? this._zoomPan.scale - this._zoomPan.zoomFactor
+          : this._zoomPan.scale + this._zoomPan.zoomFactor;
 
         this._zoomPan.move(
           this._zoomPan.zoomElementLeft,
@@ -112,6 +109,12 @@ export class FsZoomPanComponent implements OnChanges, AfterViewInit, OnDestroy {
       .subscribe((data) => {
         this.moved.emit(data);
       });
+  }
+
+  public ngOnChanges(changes: SimpleChanges): void {
+    if (changes.top || changes.left) {
+      this._zoomPan?.move(this.left * this._zoomPan.scale, this.top * this._zoomPan.scale);
+    }
   }
 
   public reset() {

@@ -1,5 +1,6 @@
 import {
-  AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, ViewChild,
+  AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef,
+  Component, ElementRef, inject, ViewChild,
 } from '@angular/core';
 
 import { ConnectionOverlayType, FsDiagramDirective } from '@firestitch/diagram';

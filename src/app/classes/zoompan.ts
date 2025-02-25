@@ -10,7 +10,6 @@ import { Zoom } from './zoom';
 export class ZoomPan {
 
   private _destroy$ = new Subject();
-
   private _zoom: Zoom;
   private _pan: Pan;
 
@@ -54,7 +53,7 @@ export class ZoomPan {
     return this._pan.zoomElementTop;
   }
 
-  public get zoomStep() {
+  public get zoomFactor() {
     return this._zoom.step;
   }
 
