@@ -14,5 +14,11 @@
     -moz-user-drag: none;
     display: block;
     transform-origin: 0px 0px;
+
+    ::ng-deep {
+      img {
+        pointer-events: none;
+      }
+    }
   }
 }
