@@ -1,6 +1,6 @@
 import { Renderer2 } from '@angular/core';
 
-import { Observable, Subject } from 'rxjs';
+import { debounceTime, Observable, Subject, takeUntil } from 'rxjs';
 
 import { IFsZoomPanConfig } from '../interfaces/zoom-pan-config.interface';
 
@@ -8,7 +8,6 @@ import { IFsZoomPanConfig } from '../interfaces/zoom-pan-config.interface';
 export class Zoom {
 
   public disabled = false;
-  
   public _lastScreenCoords = { x: 0, y: 0 };
   public _lastElemCoords = { x: 0, y: 0 };
   public _lastZoomScale = 1;
@@ -17,6 +16,7 @@ export class Zoom {
   private _zoomScale = 1;
   private _zoomFactor = 0.2;
   private _zoomed$ = new Subject<number>();
+  private _destroy$ = new Subject<void>();
 
   constructor(
     private _config: IFsZoomPanConfig,
@@ -27,7 +27,7 @@ export class Zoom {
     this._zoomScale = this._config.zoomScale || 1;
     this._zoomFactor = this._config.zoomFactor || 0.2;
     this._lastZoomScale = this._zoomScale;
-    this._setOffset();
+    this._listenOffset();
   }
 
   public get zoomElementTop(): number {
@@ -79,6 +79,11 @@ export class Zoom {
     this._setZoom(zoom);
   }
 
+  public destroy() {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
   private _setZoom(zoom: number) {
     zoom = this._validateZoom(zoom);
     this._lastZoomScale = this._zoomScale;
@@ -99,13 +104,31 @@ export class Zoom {
     return zoom;
   }
 
-  private _setOffset() {
-    const rect = this._element.parentElement.getBoundingClientRect();
+  private _listenOffset() {
 
-    this._offset = {
-      top: rect.top,
-      left: rect.left,
-    };
+    new Observable((subscriber) => {
+      const ro = new ResizeObserver((entries) => {
+        subscriber.next(entries);
+      });
+
+      // Observe one or multiple elements
+      ro.observe(this._element.parentElement);
+
+      return function unsubscribe() {
+        ro.unobserve(this._element.parentElement);
+      };
+    })
+      .pipe(
+        debounceTime(100),
+        takeUntil(this._destroy$),
+      )
+      .subscribe(() => {
+        const rect = this._element.parentElement.getBoundingClientRect();
+        this._offset = {
+          top: rect.top,
+          left: rect.left,
+        };
+      });
   }
 
 }

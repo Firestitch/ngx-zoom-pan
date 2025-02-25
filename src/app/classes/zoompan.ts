@@ -67,6 +67,7 @@ export class ZoomPan {
 
   public destroy() {
     this._pan.destroy();
+    this._zoom.destroy();
     this._destroy$.next(null);
     this._destroy$.complete();
   }
