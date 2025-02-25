@@ -54,7 +54,7 @@ export class ZoomPan {
   }
 
   public get zoomFactor() {
-    return this._zoom.step;
+    return this._zoom.zoomFactor;
   }
 
   /**
@@ -189,7 +189,7 @@ export class ZoomPan {
       const delta = event.deltaY || -event.detail; // @TODO process firefox event
       const roundedDelta = delta > 0 ? -1 : 1;
 
-      //console.log('wheel delta', delta, roundedDelta);
+      console.log(event.pageX , this._zoom.getOffset().left, event);
 
       const viewPosition = {
         x: event.pageX - this._zoom.getOffset().left,

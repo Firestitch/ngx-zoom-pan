@@ -31,7 +31,7 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
   @Input() public zoomMin = .1;
   @Input() public zoomScale = 1;
   @Input() public zoomDefault = 1;
-  @Input() public zoomFactor = 1;
+  @Input() public zoomFactor = .2;
   @Input() public top = 0;
   @Input() public left = 0;
 

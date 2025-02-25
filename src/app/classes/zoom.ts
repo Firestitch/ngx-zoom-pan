@@ -15,7 +15,7 @@ export class Zoom {
 
   private _offset: { top: number, left: number };
   private _zoomScale = 1;
-  private _zoomFactor = 0.1;
+  private _zoomFactor = 0.2;
   private _zoomed$ = new Subject<number>();
 
   constructor(
@@ -25,7 +25,7 @@ export class Zoom {
     private _renderer: Renderer2,
   ) {
     this._zoomScale = this._config.zoomScale || 1;
-    this._zoomFactor = this._config.zoomFactor || 0.1;
+    this._zoomFactor = this._config.zoomFactor || 0.2;
     this._lastZoomScale = this._zoomScale;
     this._setOffset();
   }
@@ -42,7 +42,7 @@ export class Zoom {
     return this._zoomScale;
   }
 
-  public get step() {
+  public get zoomFactor() {
     return this._zoomFactor;
   }
 
@@ -75,7 +75,7 @@ export class Zoom {
   }
 
   public adjustZoom(delta) {
-    const zoom = this._validateZoom(this.scale + (delta * this.step));
+    const zoom = this._validateZoom(this.scale + (delta * this.zoomFactor));
     this._setZoom(zoom);
   }
 
@@ -100,7 +100,7 @@ export class Zoom {
   }
 
   private _setOffset() {
-    const rect = this._element.getBoundingClientRect();
+    const rect = this._element.parentElement.getBoundingClientRect();
 
     this._offset = {
       top: rect.top,
