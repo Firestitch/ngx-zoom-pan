@@ -26,11 +26,12 @@ export class Zoom {
     private _renderer: Renderer2,
   ) {
     this._zoomScale = this._config.zoomScale || 1;
-    this._zoomFactor = this._config.zoomFactor || 0.2;
+    this._zoomFactor = this._config.zoomFactor || 0.2;  //0.2 = 20% increase per zoom step
     this._lastZoomScale = this._zoomScale;
     this._defaultZoom = this._config.zoomDefault || 1;
     this._listenOffset();
-    
+
+
     if(this._defaultZoom !== 1) {
       this._setZoom(this._config.zoomDefault);
     }
@@ -61,13 +62,13 @@ export class Zoom {
   }
 
   public zoomIn() {
-    const newScale = this._zoomScale + this._zoomFactor;
+    const newScale = this._zoomScale * (1 + this._zoomFactor);
 
     this._setZoom(newScale);
   }
 
   public zoomOut() {
-    const newScale = this.scale - this._zoomFactor;
+    const newScale = this._zoomScale / (1 + this._zoomFactor);
 
     this._setZoom(newScale);
   }
@@ -81,7 +82,7 @@ export class Zoom {
   }
 
   public adjustZoom(delta) {
-    const zoom = this._validateZoom(this.scale + (delta * this.zoomFactor));
+    const zoom = this._zoomScale * Math.pow((1 + this._zoomFactor), delta);
     this._setZoom(zoom);
   }
 

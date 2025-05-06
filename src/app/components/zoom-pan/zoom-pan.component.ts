@@ -78,7 +78,7 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
     this._zoomPan = new ZoomPan(
       config,
       this._element.nativeElement,
-      this.container.nativeElement, 
+      this.container.nativeElement,
       this._renderer);
 
     if (this.top || this.left) {
