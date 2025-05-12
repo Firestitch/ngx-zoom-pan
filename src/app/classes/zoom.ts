@@ -1,6 +1,6 @@
 import { Renderer2 } from '@angular/core';
 
-import { debounceTime, Observable, Subject, takeUntil } from 'rxjs';
+import { debounceTime, Observable, Subject, Subscriber, takeUntil } from 'rxjs';
 
 import { IFsZoomPanConfig } from '../interfaces/zoom-pan-config.interface';
 
@@ -81,7 +81,7 @@ export class Zoom {
     return this._offset;
   }
 
-  public adjustZoom(delta) {
+  public adjustZoom(delta: number) {
     const zoom = this._zoomScale * Math.pow((1 + this._zoomFactor), delta);
     this._setZoom(zoom);
   }
@@ -99,7 +99,7 @@ export class Zoom {
     this._zoomed$.next(this._zoomScale);
   }
 
-  private _validateZoom(zoom) {
+  private _validateZoom(zoom: number) {
     // keep within the limits
     if (this._config.zoomMin && zoom < this._config.zoomMin) {
       zoom = this._config.zoomMin;
@@ -112,17 +112,32 @@ export class Zoom {
   }
 
   private _listenOffset() {
+    // calculate initial offset
+    this._calculateOffset();
 
-    new Observable((subscriber) => {
-      const ro = new ResizeObserver((entries) => {
-        subscriber.next(entries);
+    // listen for changes to any parent element that may affect the offset and recalculate it
+    let node = this._element.parentElement;
+    const elements = [];
+    while (node) {
+      elements.unshift(node);
+      node = node.parentElement;
+    }
+
+    new Observable((subscriber: Subscriber<MutationRecord[]>) => {
+      const ro = new MutationObserver((mutations: MutationRecord[]) => {
+        subscriber.next(mutations);
       });
 
-      // Observe one or multiple elements
-      ro.observe(this._element.parentElement);
+      //look for style changes on any parent element
+      elements.forEach((element: Element) => {
+        ro.observe(element, {
+          attributes: true,
+          attributeFilter: ['style'],
+        });
+      });
 
       return function unsubscribe() {
-        ro.unobserve(this._element.parentElement);
+        ro.disconnect();
       };
     })
       .pipe(
@@ -130,12 +145,15 @@ export class Zoom {
         takeUntil(this._destroy$),
       )
       .subscribe(() => {
-        const rect = this._element.parentElement.getBoundingClientRect();
-        this._offset = {
-          top: rect.top,
-          left: rect.left,
-        };
+        this._calculateOffset();
       });
   }
 
+  private _calculateOffset() {
+    const rect = this._element.parentElement.getBoundingClientRect();
+    this._offset = {
+      top: rect.top,
+      left: rect.left,
+    };
+  }
 }
