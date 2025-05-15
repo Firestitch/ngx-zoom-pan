@@ -193,8 +193,8 @@ export class ZoomPan {
       console.log(event.pageX , this._zoom.getOffset().left, event);
 
       const viewPosition = {
-        x: event.pageX - this._zoom.getOffset().left,
-        y: event.pageY - this._zoom.getOffset().top,
+        x: event.clientX - this._zoom.getOffset().left,
+        y: event.clientY - this._zoom.getOffset().top,
       };
 
       const contentPosition = {

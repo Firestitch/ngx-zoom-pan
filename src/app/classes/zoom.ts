@@ -58,6 +58,7 @@ export class Zoom {
   }
 
   public reset() {
+    this._calculateOffset();
     this._setZoom(this._defaultZoom);
   }
 
