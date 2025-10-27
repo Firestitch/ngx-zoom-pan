@@ -20,10 +20,11 @@ import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content.
 
 
 @Component({
-  selector: 'fs-zoom-pan',
-  templateUrl: './zoom-pan.component.html',
-  styleUrls: ['./zoom-pan.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'fs-zoom-pan',
+    templateUrl: './zoom-pan.component.html',
+    styleUrls: ['./zoom-pan.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
 })
 export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
 

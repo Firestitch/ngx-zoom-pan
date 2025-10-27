@@ -3,16 +3,26 @@ import {
   Component, ElementRef, inject, ViewChild,
 } from '@angular/core';
 
-import { ConnectionOverlayType, FsDiagramDirective } from '@firestitch/diagram';
+import { ConnectionOverlayType, FsDiagramDirective, FsDiagramModule } from '@firestitch/diagram';
 import { FsZoomPanComponent } from '@firestitch/zoom-pan';
 
 import { random } from 'lodash';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { FsZoomPanComponent as FsZoomPanComponent_1 } from '../../../../src/app/components/zoom-pan/zoom-pan.component';
 
 @Component({
-  selector: 'example',
-  templateUrl: './example.component.html',
-  styleUrls: ['./example.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'example',
+    templateUrl: './example.component.html',
+    styleUrls: ['./example.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        MatIconButton,
+        MatIcon,
+        FsZoomPanComponent_1,
+        FsDiagramModule,
+    ],
 })
 export class ExampleComponent implements AfterViewInit {
 

@@ -6,17 +6,15 @@ import { FsZoomPanContentDirective } from './directives/fs-zoom-pan-content.dire
 
 
 @NgModule({
-  imports: [
-    CommonModule,
-  ],
-  exports: [
-    FsZoomPanComponent,
-    FsZoomPanContentDirective,
-  ],
-  declarations: [
-    FsZoomPanComponent,
-    FsZoomPanContentDirective,
-  ],
+    imports: [
+        CommonModule,
+        FsZoomPanComponent,
+        FsZoomPanContentDirective,
+    ],
+    exports: [
+        FsZoomPanComponent,
+        FsZoomPanContentDirective,
+    ],
 })
 export class FsZoomPanModule {
   public static forRoot(): ModuleWithProviders<FsZoomPanModule> {
