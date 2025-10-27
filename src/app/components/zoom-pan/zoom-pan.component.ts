@@ -1,14 +1,4 @@
-import {
-  ChangeDetectionStrategy, Component, ContentChild,
-  ElementRef,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy, OnInit, Output,
-  Renderer2,
-  SimpleChanges,
-  TemplateRef, ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ContentChild, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, TemplateRef, ViewChild, inject } from '@angular/core';
 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -27,6 +17,9 @@ import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content.
     standalone: true,
 })
 export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
+  private _element = inject(ElementRef);
+  private _renderer = inject(Renderer2);
+
 
   @Input() public zoomMax = 2;
   @Input() public zoomMin = .1;
@@ -47,11 +40,6 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
 
   private _destroy$ = new Subject();
   private _zoomPan: ZoomPan = null;
-
-  constructor(
-    private _element: ElementRef,
-    private _renderer: Renderer2,
-  ) { }
 
   public get element() {
     return this._element;
