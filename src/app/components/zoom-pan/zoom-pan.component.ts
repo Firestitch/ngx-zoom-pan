@@ -79,16 +79,9 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
         takeUntil(this._destroy$),
       )
       .subscribe((data) => {
+        // no repositioning here - every scale change is followed by an explicit re-anchor
+        // (alignPosition on wheel, moveCenter on zoomIn/zoomOut/zoom)
         this.zoomed.emit(data);
-
-        const prevZoomScale = data
-          ? this._zoomPan.scale - this._zoomPan.zoomFactor
-          : this._zoomPan.scale + this._zoomPan.zoomFactor;
-
-        this._zoomPan.move(
-          this._zoomPan.zoomElementLeft,
-          (this._zoomPan.zoomElementTop / prevZoomScale) * this._zoomPan.scale,
-        );
       });
 
     this._zoomPan.moved$

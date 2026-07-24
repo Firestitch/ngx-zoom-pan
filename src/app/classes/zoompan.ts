@@ -19,7 +19,7 @@ export class ZoomPan {
     private _zoomElement: HTMLElement,
     private _renderer: Renderer2,
   ) {
-    this._zoom = new Zoom(this._config, this._element, this._zoomElement, this._renderer);
+    this._zoom = new Zoom(this._config, this._zoomElement, this._renderer);
     this._pan = new Pan(this._element, this._zoomElement, this._renderer);
 
     this.events();
@@ -42,7 +42,7 @@ export class ZoomPan {
   }
 
   public set scale(scale: number) {
-    this._zoom.setScale(scale);
+    this.zoom(scale);
   }
 
   public get zoomElementLeft() {
@@ -109,9 +109,12 @@ export class ZoomPan {
    * get x,y coordinates at center of current view
    */
   public getCenter(): { x: number, y: number } {
+    const origin = this._pan.getOrigin();
+    const center = this._pan.getViewportCenter();
+
     return {
-      x: -(this._pan.getLeft() / this._zoom.scale) + (this._pan.getWidth() / 2 / this._zoom.scale),
-      y: -(this._pan.getTop() / this._zoom.scale) + (this._pan.getHeight() / 2 / this._zoom.scale),
+      x: (center.x - origin.x) / this._zoom.scale,
+      y: (center.y - origin.y) / this._zoom.scale,
     };
   }
 
@@ -130,12 +133,16 @@ export class ZoomPan {
    * @param y
    */
   public moveCenter(x: number, y: number, options?: { slide?: boolean }) {
-    x = x - (this._pan.getWidth() / 2 / this._zoom.scale);
-    y = y - (this._pan.getHeight() / 2 / this._zoom.scale);
+    const origin = this._pan.getOrigin();
+    const center = this._pan.getViewportCenter();
 
-    const left = - (x * this._zoom.scale);
-    const top = - (y * this._zoom.scale);
-    this.move(left, top, options);
+    // x,y currently renders at origin + x,y * scale. shift the container by whatever
+    // puts it on the center of the view
+    this.move(
+      this._pan.getLeft() + (center.x - origin.x - (x * this._zoom.scale)),
+      this._pan.getTop() + (center.y - origin.y - (y * this._zoom.scale)),
+      options,
+    );
   }
 
   /**
@@ -185,40 +192,43 @@ export class ZoomPan {
    * on the content afterwards
    */
   public wheel(event: WheelEvent) {
-    if (!this._zoom.disabled) {
-
-      const delta = event.deltaY || -event.detail; // @TODO process firefox event
-      const roundedDelta = delta > 0 ? -1 : 1;
-
-      console.log(event.pageX , this._zoom.getOffset().left, event);
-
-      const viewPosition = {
-        x: event.clientX - this._zoom.getOffset().left,
-        y: event.clientY - this._zoom.getOffset().top,
-      };
-
-      const contentPosition = {
-        x: (-this._pan.getLeft() / this._zoom.scale) + (viewPosition.x / this._zoom.scale),
-        y: (-this._pan.getTop() / this._zoom.scale) + (viewPosition.y / this._zoom.scale),
-      };
-
-      this._zoom.adjustZoom(roundedDelta);
-      this.alignPosition(contentPosition, viewPosition);
+    if (this._zoom.disabled) {
+      return;
     }
+
+    const delta = event.deltaY || -event.detail; // @TODO process firefox event
+
+    // a horizontal-only wheel event has no vertical delta and must not zoom
+    if (!delta) {
+      return;
+    }
+
+    // measured against the container's own origin, so no parent/page offsets are involved
+    const origin = this._pan.getOrigin();
+    const viewPosition = {
+      x: event.clientX - origin.x,
+      y: event.clientY - origin.y,
+    };
+
+    const previousScale = this._zoom.scale;
+
+    this._zoom.adjustZoom(delta > 0 ? -1 : 1);
+    this.alignPosition(viewPosition, previousScale);
   }
 
   /**
-   * move the zoom-pan container so that the specified position is at the same position
-   * on the screen
+   * move the zoom-pan container so that the content that was under viewPosition before the
+   * scale changed is under it again. viewPosition is relative to the container's origin, so
+   * the content point is viewPosition / previousScale and it now sits that much further out
+   * at the current scale - shifting the container by the difference cancels it exactly
    */
-  public alignPosition(contentPosition: { x: number, y: number }, viewPosition: { x: number, y: number }) {
-    const x = contentPosition.x - (viewPosition.x / this._zoom.scale);
-    const y = contentPosition.y - (viewPosition.y / this._zoom.scale);
+  public alignPosition(viewPosition: { x: number, y: number }, previousScale: number) {
+    const ratio = this._zoom.scale / previousScale;
 
-    const left = - (x * this._zoom.scale);
-    const top = - (y * this._zoom.scale);
-
-    this.move(left, top);
+    this.move(
+      this._pan.getLeft() + (viewPosition.x * (1 - ratio)),
+      this._pan.getTop() + (viewPosition.y * (1 - ratio)),
+    );
   }
 
 }
