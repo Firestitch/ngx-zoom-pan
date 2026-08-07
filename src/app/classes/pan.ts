@@ -196,6 +196,30 @@ export class Pan {
     };
   }
 
+  /**
+   * size of the visible area. clientWidth/clientHeight are used so the size is measured on
+   * the padding box, which is what overflow clips to
+   */
+  public getViewportSize(): { width: number, height: number } {
+    return {
+      width: this._element.clientWidth,
+      height: this._element.clientHeight,
+    };
+  }
+
+  /**
+   * viewport coordinates of the top left corner of the visible area, measured on the padding
+   * box for the same reason as getViewportCenter()
+   */
+  public getViewportOrigin(): { x: number, y: number } {
+    const rect = this._element.getBoundingClientRect();
+
+    return {
+      x: rect.left + this._element.clientLeft,
+      y: rect.top + this._element.clientTop,
+    };
+  }
+
   public getZoomableWidth() {
     const el: any = this._element.querySelector('.zoomable');
 

@@ -4,4 +4,5 @@ export interface IFsZoomPanConfig {
   zoomDefault?: number;
   zoomScale?: number;
   zoomFactor?: number;
+  zoomFit?: boolean;
 }

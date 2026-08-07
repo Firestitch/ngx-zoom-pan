@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ContentChild, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, TemplateRef, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ContentChild, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, TemplateRef, ViewChild, inject } from '@angular/core';
 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,6 +19,7 @@ import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content.
 export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
   private _element = inject(ElementRef);
   private _renderer = inject(Renderer2);
+  private _zone = inject(NgZone);
 
 
   @Input() public zoomMax = 2;
@@ -26,6 +27,13 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
   @Input() public zoomScale = 1;
   @Input() public zoomDefault = 1;
   @Input() public zoomFactor = .2;
+
+  /**
+   * fit the content as soon as it has a size, and again while that size is still changing.
+   * read once on init, alongside the rest of the zoom inputs
+   */
+  @Input() public zoomFit = false;
+
   @Input() public top = 0;
   @Input() public left = 0;
 
@@ -62,6 +70,7 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
       zoomDefault: this.zoomDefault,
       zoomScale: this.zoomScale,
       zoomFactor: this.zoomFactor,
+      zoomFit: this.zoomFit,
     };
 
     this._zoomPan = new ZoomPan(
@@ -81,7 +90,7 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe((data) => {
         // no repositioning here - every scale change is followed by an explicit re-anchor
         // (alignPosition on wheel, moveCenter on zoomIn/zoomOut/zoom)
-        this.zoomed.emit(data);
+        this._emit(() => this.zoomed.emit(data));
       });
 
     this._zoomPan.moved$
@@ -89,7 +98,7 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
         takeUntil(this._destroy$),
       )
       .subscribe((data) => {
-        this.moved.emit(data);
+        this._emit(() => this.moved.emit(data));
       });
   }
 
@@ -127,6 +136,27 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
     return this._zoomPan.getCenter();
   }
 
+  /**
+   * scale the content so that it fills the width of the view without overflowing it, and pin its
+   * top left corner to the top left corner of the view. the scale is still bound by zoomMin/zoomMax
+   * @param options horizontal: boolean - fit across the width (default true), vertical: boolean - also keep the content inside the height so that none of it is cut off (default false), padding: number - gap in pixels to leave around the content
+   */
+  public fit(options: {
+    horizontal?: boolean,
+    vertical?: boolean,
+    padding?: number,
+    slide?: boolean,
+  } = {}) {
+    this._zoomPan.fit(options);
+  }
+
+  /**
+   * bounding box of the content in unscaled coordinates
+   */
+  public getContentBounds(): { left: number, top: number, width: number, height: number } {
+    return this._zoomPan.getContentBounds();
+  }
+
   public zoom(scale: number) {
     this._zoomPan.zoom(scale);
   }
@@ -161,6 +191,19 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
 
   public disable() {
     this._zoomPan.disable();
+  }
+
+  /**
+   * zoomFit measures through a ResizeObserver, which zone.js does not patch, so a fit that
+   * lands when content finishes rendering would otherwise emit from outside the angular zone
+   * and leave an OnPush parent listening on (zoomed)/(moved) with no change detection to run
+   */
+  private _emit(emit: () => void): void {
+    if (NgZone.isInAngularZone()) {
+      emit();
+    } else {
+      this._zone.run(emit);
+    }
   }
 
   public ngOnDestroy(): void {

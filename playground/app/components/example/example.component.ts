@@ -3,26 +3,30 @@ import {
   Component, ElementRef, inject, ViewChild,
 } from '@angular/core';
 
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+
 import { ConnectionOverlayType, FsDiagramDirective, FsDiagramModule } from '@firestitch/diagram';
 import { FsZoomPanComponent } from '@firestitch/zoom-pan';
 
 import { random } from 'lodash';
-import { MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
+
 import { FsZoomPanComponent as FsZoomPanComponent_1 } from '../../../../src/app/components/zoom-pan/zoom-pan.component';
 
 @Component({
-    selector: 'example',
-    templateUrl: './example.component.html',
-    styleUrls: ['./example.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
-    imports: [
-        MatIconButton,
-        MatIcon,
-        FsZoomPanComponent_1,
-        FsDiagramModule,
-    ],
+  selector: 'example',
+  templateUrl: './example.component.html',
+  styleUrls: ['./example.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    MatIconButton,
+    MatIcon,
+    MatTooltip,
+    FsZoomPanComponent_1,
+    FsDiagramModule,
+  ],
 })
 export class ExampleComponent implements AfterViewInit {
 
@@ -36,6 +40,7 @@ export class ExampleComponent implements AfterViewInit {
   public zoomPanContaner: ElementRef;
 
   public objects = [];
+  public scaleLabel = '';
 
   private _cdRef = inject(ChangeDetectorRef);
 
@@ -45,6 +50,10 @@ export class ExampleComponent implements AfterViewInit {
 
   public zoomOut() {
     this.zoomPan.zoomOut();
+  }
+
+  public fit() {
+    this.zoomPan.fit();
   }
 
   public center(el) {
@@ -68,14 +77,16 @@ export class ExampleComponent implements AfterViewInit {
     //console.log('Moved', data);
   }
 
-  public zoomed(data) {
-    //console.log('Zoomed', data);
+  public zoomed(scale: number) {
+    this._updateScaleLabel(scale);
   }
 
   public ngAfterViewInit() {
     // for (let i = 0; i < 30; i++) {
     //   this.add();
     // }
+
+    this._updateScaleLabel(this.zoomPan.scale);
 
     this._cdRef.markForCheck();
   }
@@ -117,5 +128,11 @@ export class ExampleComponent implements AfterViewInit {
 
   public dragStop() {
     //console.log(e);
+  }
+
+  private _updateScaleLabel(scale: number) {
+    this.scaleLabel = `${Math.round(scale * 100)}%`;
+
+    this._cdRef.markForCheck();
   }
 }

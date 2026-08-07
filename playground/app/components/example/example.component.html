@@ -1,6 +1,7 @@
-<div fxFlexLayout="row">
+<div class="zoom-pan-toolbar">
   <button
       mat-icon-button
+      matTooltip="Zoom in one step — zoomIn()"
       (click)="zoomIn()">
     <mat-icon>
       zoom_in
@@ -8,41 +9,45 @@
   </button>
   <button
       mat-icon-button
+      matTooltip="Zoom out one step — zoomOut()"
       (click)="zoomOut()">
     <mat-icon>
       zoom_out
     </mat-icon>
   </button>
+  <span class="separator"></span>
   <button
       mat-icon-button
+      matTooltip="Scale the content to fill the width of the view, anchored top left — fit()"
+      (click)="fit()">
+    <mat-icon>
+      fit_screen
+    </mat-icon>
+  </button>
+  <button
+      mat-icon-button
+      matTooltip="Restore the default zoom and position — reset()"
       (click)="reset()">
     <mat-icon>
-      youtube_searched_for
+      restart_alt
     </mat-icon>
   </button>
-  <!-- <button
-      mat-icon-button
-      (click)="add()">
-    <mat-icon>
-      add
-    </mat-icon>
-  </button>
-  <button
-      mat-icon-button
-      (click)="getCenter()">
-    <mat-icon>
-      filter_center_focus
-    </mat-icon>
-  </button> -->
+  <span class="separator"></span>
+  <span
+      class="scale"
+      matTooltip="Current zoom level — scale / (zoomed) output">
+    {{ scaleLabel }}
+  </span>
 </div>
 <div #zoomPanContaner>
   <fs-zoom-pan
-      [zoomDefault]="1.1"
+      [zoomDefault]=".25"
       [zoomFactor]=".2"
       [zoomMax]="10"
+      [zoomFit]="true"
       (zoomed)="zoomed($event)"
       (moved)="moved($event)">
-    <div fsDiagram>
+    <div>
       <!-- <img src="https://cdn.ferrari.com/cms/network/media/img/resize/6673fe6511a59b0011ec0465-laferrari_20240627_cover_1920x1080%20centered_v2?width=1080"> -->
       <img src="https://firestitch-dev.s3.amazonaws.com/pub/st/k9791cbccd17973c0f9250e67cbde6cab.jpg">
       <!-- <div
