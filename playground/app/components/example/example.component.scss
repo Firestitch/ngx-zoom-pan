@@ -22,6 +22,26 @@
   }
 }
 
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.control-label {
+  min-width: 86px;
+  font-size: 13px;
+  color: #666;
+  font-family: monospace;
+}
 
 .zoom-pan-toolbar {
   display: inline-flex;
@@ -33,6 +53,7 @@
   border-radius: 24px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
+  flex-wrap: wrap;
 
   .separator {
     width: 1px;
@@ -50,9 +71,74 @@
     font-variant-numeric: tabular-nums;
     cursor: default;
   }
+
+  .held {
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: #eee;
+    color: #888;
+    font-size: 12px;
+    cursor: default;
+  }
+
+  .held-on {
+    background: #e3f2e6;
+    color: #2e7d32;
+  }
 }
 
-fs-zoom-pan {
-  border: 1px solid #efefef;
-  height: 600px;
+/// Sized entirely by its container, which is how a zoom-pan is normally used: full width, and a
+/// height the layout decides. Both are relative here so resizing the browser window changes the
+/// view on both axes — that is the resize a held fit has to survive.
+.canvas {
+  overflow: hidden;
+  width: 100%;
+  height: 60vh;
+  min-height: 240px;
+  border: 1px solid #cfd3dc;
+  border-radius: 4px;
+  background:
+    repeating-conic-gradient(#f4f5f7 0% 25%, #fff 0% 50%) 50% / 20px 20px;
+
+  fs-zoom-pan {
+    height: 100%;
+  }
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-family: monospace;
+  font-size: 20px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.swatch-tall {
+  width: 300px;
+  height: 1400px;
+  background: linear-gradient(#4f7fd1, #7b4fd1);
+}
+
+.swatch-small {
+  width: 160px;
+  height: 90px;
+  background: linear-gradient(#d1734f, #d14f9c);
+  font-size: 14px;
+}
+
+.swatch-square {
+  width: 900px;
+  height: 900px;
+  background: linear-gradient(#3f9e6a, #3f8f9e);
+}
+
+.scroll-hint {
+  max-width: 860px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
 }

@@ -11,6 +11,7 @@ export class Pan {
   private _positionPage: { left: number, top: number };
   private _destroy$ = new Subject<void>();
   private _moved$ = new Subject<{ top: number, left: number }>();
+  private _dragged$ = new Subject<void>();
   private _dragStart = false;
   private _left = 0;
   private _top = 0;
@@ -30,6 +31,15 @@ export class Pan {
 
   public get moved$(): Observable<{ top: number, left: number }> {
     return this._moved$.asObservable();
+  }
+
+  /**
+   * Fires only for a pointer drag, unlike moved$, which also fires for every programmatic move.
+   * That difference is what lets a held fit tell "the user took over" from "the fit repositioned
+   * the content" — the fit moves the content on every resize and must not count as taking over.
+   */
+  public get dragged$(): Observable<void> {
+    return this._dragged$.asObservable();
   }
 
   public get zoomElementTop(): number {
@@ -110,6 +120,8 @@ export class Pan {
     }
 
     event.preventDefault();
+
+    this._dragged$.next();
 
     const newPosition = this.pointerEventToXY(event);
 
@@ -243,6 +255,7 @@ export class Pan {
   public destroy() {
     this._destroy$.next();
     this._destroy$.complete();
+    this._dragged$.complete();
   }
 
   public pointerEventToXY(event: MouseEvent | TouchEvent): { x: number, y: number } {

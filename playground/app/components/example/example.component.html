@@ -1,7 +1,81 @@
+<!-- (change) rather than (valueChange) throughout: MatButtonToggleGroup emits valueChange from its
+     own value setter, so [value] + (valueChange) feeds every write straight back into the binding.
+     In multiple mode the value getter builds a new array each read, which makes that feedback never
+     compare equal and loops change detection forever. (change) only fires for user input, and its
+     event carries the group's value, so it reads the same either way. -->
+<div class="controls">
+  <div class="control">
+    <span class="control-label">Content</span>
+    <mat-button-toggle-group
+        [value]="content"
+        (change)="setContent($event.value)"
+        aria-label="Content">
+      @for (item of contents; track item.key) {
+        <mat-button-toggle
+            [value]="item.key"
+            [matTooltip]="item.hint">
+          {{ item.label }}
+        </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
+  <div class="control">
+    <span class="control-label">fitMode</span>
+    <mat-button-toggle-group
+        [value]="fitMode"
+        (change)="setFitMode($event.value)"
+        matTooltip="Which axes the fit has to satisfy — [fitMode]"
+        aria-label="Fit mode">
+      @for (mode of fitModes; track mode) {
+        <mat-button-toggle [value]="mode">
+          {{ mode }}
+        </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
+  <div class="control">
+    <span class="control-label">fitPosition</span>
+    <mat-button-toggle-group
+        [value]="fitPositionChoice"
+        (change)="setFitPosition($event.value)"
+        matTooltip="Where the fitted content sits — [fitPosition]. 'default' uses the natural position for the mode"
+        aria-label="Fit position">
+      @for (position of fitPositions; track position) {
+        <mat-button-toggle [value]="position">
+          {{ position }}
+        </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+  </div>
+  <div class="control">
+    <span class="control-label">Options</span>
+    <mat-button-toggle-group
+        multiple
+        [value]="options"
+        (change)="setOptions($event.value)"
+        aria-label="Options">
+      <mat-button-toggle
+          value="zoomFit"
+          matTooltip="Hold the fit through container resizes until the user zooms or pans — [zoomFit]">
+        zoomFit
+      </mat-button-toggle>
+      <mat-button-toggle
+          value="padding"
+          matTooltip="20px gap against the edges — [fitPadding]">
+        padding 20
+      </mat-button-toggle>
+      <mat-button-toggle
+          value="maxScale"
+          matTooltip="Never magnify content that already fits — [fitMaxScale]=1">
+        maxScale 1
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+</div>
 <div class="zoom-pan-toolbar">
   <button
       mat-icon-button
-      matTooltip="Zoom in one step — zoomIn()"
+      matTooltip="Zoom in one step — zoomIn(). Releases the held fit"
       (click)="zoomIn()">
     <mat-icon>
       zoom_in
@@ -9,7 +83,7 @@
   </button>
   <button
       mat-icon-button
-      matTooltip="Zoom out one step — zoomOut()"
+      matTooltip="Zoom out one step — zoomOut(). Releases the held fit"
       (click)="zoomOut()">
     <mat-icon>
       zoom_out
@@ -18,7 +92,7 @@
   <span class="separator"></span>
   <button
       mat-icon-button
-      matTooltip="Scale the content to fill the width of the view, anchored top left — fit()"
+      matTooltip="Fit with the settings above — fit(). Re-arms the held fit"
       (click)="fit()">
     <mat-icon>
       fit_screen
@@ -26,7 +100,7 @@
   </button>
   <button
       mat-icon-button
-      matTooltip="Restore the default zoom and position — reset()"
+      matTooltip="Restore the default zoom and position — reset(). Releases the held fit"
       (click)="reset()">
     <mat-icon>
       restart_alt
@@ -38,45 +112,71 @@
       matTooltip="Current zoom level — scale / (zoomed) output">
     {{ scaleLabel }}
   </span>
+  <span class="separator"></span>
+  <span
+      class="held"
+      [class.held-on]="fitHeld"
+      matTooltip="Whether the fit is still being held through resizes — fitHeld. Drag the canvas or wheel-zoom to release it, then press Fit to arm it again">
+    {{ fitHeld ? 'fit held' : 'fit released' }}
+  </span>
+  <span class="separator"></span>
+  <mat-button-toggle-group
+      [value]="wheel"
+      (change)="setWheel($event.value)"
+      matTooltip="When the mouse wheel zooms — [wheel]"
+      aria-label="Wheel mode">
+    @for (mode of wheelModes; track mode) {
+      <mat-button-toggle [value]="mode">
+        {{ mode }}
+      </mat-button-toggle>
+    }
+  </mat-button-toggle-group>
 </div>
+<p class="scroll-hint">
+  The canvas is full width and <code>60vh</code> tall — sized by its container, like a real one.
+  <strong>Resize the browser window</strong> and, with <code>zoomFit</code> on, the content is
+  re-fitted on every change so it keeps exactly the view you are looking at. Wheel-zoom or drag the
+  content and the hold is released — resize again and your own zoom and position survive untouched.
+  <code>Fit</code> arms it back.
+</p>
 <div #zoomPanContaner>
-  <fs-zoom-pan
-      [zoomDefault]=".25"
-      [zoomFactor]=".2"
-      [zoomMax]="10"
-      [zoomFit]="true"
-      (zoomed)="zoomed($event)"
-      (moved)="moved($event)">
-    <div>
-      <!-- <img src="https://cdn.ferrari.com/cms/network/media/img/resize/6673fe6511a59b0011ec0465-laferrari_20240627_cover_1920x1080%20centered_v2?width=1080"> -->
-      <img src="https://firestitch-dev.s3.amazonaws.com/pub/st/k9791cbccd17973c0f9250e67cbde6cab.jpg">
-      <!-- <div
-          *ngFor="let object of objects"
-          fsDiagramObject
-          #modelObject
-          (dragStop)="dragStop()"
-          [data]="object"
-          [scale]="zoomPan.scale"
-          [x1]="object.x1"
-          [y1]="object.y1">
-        <button
-            mat-icon-button
-            (click)="remove(object)">
-          <mat-icon>
-            clear
-          </mat-icon>
-        </button>
-        <button
-            mat-icon-button
-            (click)="center(modelObject)">
-          <mat-icon>
-            gps_fixed
-          </mat-icon>
-        </button>
-        <div>
-          {{ object.name }}
+  <!-- Every fit input is read once when the component builds its ZoomPan, so changing one has to
+       rebuild the element rather than rebind it. -->
+  @for (key of [settingsKey]; track key) {
+    <div class="canvas">
+      <fs-zoom-pan
+          [zoomFactor]=".2"
+          [zoomMin]=".05"
+          [zoomMax]="10"
+          [zoomFit]="zoomFit"
+          [fitMode]="fitMode"
+          [fitPosition]="resolvedFitPosition"
+          [fitPadding]="fitPadding"
+          [fitMaxScale]="fitMaxScale"
+          [wheel]="wheel"
+          (zoomed)="zoomed($event)"
+          (moved)="moved()">
+        <div [ngSwitch]="content">
+          <img
+            *ngSwitchCase="'wide'"
+            src="https://firestitch-dev.s3.amazonaws.com/pub/st/k9791cbccd17973c0f9250e67cbde6cab.jpg">
+          <div
+            *ngSwitchCase="'tall'"
+            class="swatch swatch-tall">
+            tall<br>300 &times; 1400
+          </div>
+          <div
+            *ngSwitchCase="'small'"
+            class="swatch swatch-small">
+            small<br>160 &times; 90
+          </div>
+          <div
+            *ngSwitchCase="'square'"
+            class="swatch swatch-square">
+            square<br>900 &times; 900
+          </div>
         </div>
-      </div> -->
+      </fs-zoom-pan>
     </div>
-  </fs-zoom-pan>
+  }
 </div>

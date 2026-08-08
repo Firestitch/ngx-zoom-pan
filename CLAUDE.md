@@ -4,7 +4,9 @@
 
 ## CRITICAL: Read the standards before writing code
 
-Two separate bodies of guidance that do not overlap. Load from the right one.
+Two separate bodies of guidance that do not overlap. `standards/` covers **how code is
+written**; the Specify MCP guide covers **how work is tracked**. Route on what the work is
+about, not on which tool you are about to call.
 
 ### Codebase standards → `standards/`
 
@@ -31,13 +33,28 @@ scoped ones. Match the structure of the files already there (title, rule, good a
 examples, notes) and add an entry to that folder's `index.json` with a clear description and
 generous keywords so it can be found.
 
-### Driving the Specify MCP → its own tools
+### Specify work → the MCP guide
 
-How to use the MCP itself — tasks, components, testcases, time, the PR workflow, SDLC — is
-baked into the MCP package rather than `standards/`, so it can never drift from the tools it
-documents. Call `specify_guide_index` to route, then `specify_guide_read` the matching file
-before your first write. Use `specify_search_knowledge` when the index does not obviously
-route. Do not look for MCP guidance in `standards/`; it is not there.
+Anything whose subject is a Specify object — tasks, plans, components, docs, mockups,
+designs, test cases, time, releases — is documented inside the MCP package rather than
+`standards/`, so it can never drift from the tools it documents. Call `specify_guide_index`
+to route, then `specify_guide_read` the matching file **before you act**. Use
+`specify_search_knowledge` when the index does not obviously route. Do not look for MCP
+guidance in `standards/`; it is not there.
+
+**This routes on subject, not on tool.** Committing code written for a Specify task is
+Specify work even though `git commit` is not an MCP call — the commit subject carries the
+task's identifier and its name **verbatim**, which only the MCP can give you:
+
+```
+<IDENTIFIER> <Task name>
+
+<body — what changed and why>
+```
+
+e.g. `SP-T4500 Add login validation`. This holds for **every** commit against a task, not
+just ones headed for a pull request. Read `commits.md` before committing task work;
+`pr-workflow.md` covers branches, PRs, and linking a PR back to its task.
 
 ### Keeping `standards/` current
 

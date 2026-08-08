@@ -7,6 +7,9 @@ import { IFsZoomPanConfig } from 'src/app/interfaces/zoom-pan-config.interface';
 
 import { ZoomPan } from '../../classes/zoompan';
 import { FsZoomPanContentDirective } from '../../directives/fs-zoom-pan-content.directive';
+import { IFsZoomPanFitOptions } from '../../interfaces/zoom-pan-fit-options.interface';
+import { FsZoomPanFit, FsZoomPanPosition } from '../../types/zoom-pan-fit.type';
+import { FsZoomPanWheel } from '../../types/zoom-pan-wheel.type';
 
 
 @Component({
@@ -29,10 +32,34 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
   @Input() public zoomFactor = .2;
 
   /**
-   * fit the content as soon as it has a size, and again while that size is still changing.
+   * hold the content fitted: fit it as soon as it has a size, and re-fit it every time the content
+   * or the view changes size, so resizing the container keeps the same view of the same thing.
+   *
+   * the hold ends the moment the user zooms or pans — from then on the view is theirs and a resize
+   * leaves it alone. calling fit() puts the hold back on.
+   *
    * read once on init, alongside the rest of the zoom inputs
    */
   @Input() public zoomFit = false;
+
+  /** which axes a fit has to satisfy. `both` is the one that cannot cut anything off */
+  @Input() public fitMode: FsZoomPanFit = 'both';
+
+  /** where fitted content sits. defaults per mode: both/height centre, width pins to the top */
+  @Input() public fitPosition: FsZoomPanPosition;
+
+  /** gap in pixels between the content and the edges it is fitted against */
+  @Input() public fitPadding = 0;
+
+  /** ceiling on the fitted scale. 1 shrinks oversized content without magnifying content that fits */
+  @Input() public fitMaxScale: number;
+
+  /**
+   * whether the mouse wheel zooms. defaults to 'always', which consumes every wheel event
+   * over the element; use 'modifier' inside scrolling content so the page keeps scrolling
+   * and only Ctrl/⌘ + wheel (or a trackpad pinch) zooms
+   */
+  @Input() public wheel: FsZoomPanWheel = 'always';
 
   @Input() public top = 0;
   @Input() public left = 0;
@@ -71,6 +98,11 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
       zoomScale: this.zoomScale,
       zoomFactor: this.zoomFactor,
       zoomFit: this.zoomFit,
+      fitMode: this.fitMode,
+      fitPosition: this.fitPosition,
+      fitPadding: this.fitPadding,
+      fitMaxScale: this.fitMaxScale,
+      wheel: this.wheel,
     };
 
     this._zoomPan = new ZoomPan(
@@ -137,17 +169,30 @@ export class FsZoomPanComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * scale the content so that it fills the width of the view without overflowing it, and pin its
-   * top left corner to the top left corner of the view. the scale is still bound by zoomMin/zoomMax
-   * @param options horizontal: boolean - fit across the width (default true), vertical: boolean - also keep the content inside the height so that none of it is cut off (default false), padding: number - gap in pixels to leave around the content
+   * scale the content to the view and place it there. every option falls back to the matching
+   * input, so a bare fit() does whatever the component was configured for.
+   *
+   * mode: 'both' (default) fits on both axes so nothing is cut off; 'width' and 'height' each
+   * satisfy one axis and let the other overflow.
+   * position: one of the nine named positions. defaults per mode — both/height centre, width pins
+   * to the top.
+   * padding: gap in pixels against the edges it is fitted to.
+   * maxScale: ceiling on the resulting scale; 1 shrinks oversized content without magnifying
+   * content that already fits.
+   *
+   * when zoomFit is on this also re-arms the hold, so the content goes back to being kept fitted
+   * through resizes until the user zooms or pans again.
    */
-  public fit(options: {
-    horizontal?: boolean,
-    vertical?: boolean,
-    padding?: number,
-    slide?: boolean,
-  } = {}) {
+  public fit(options: IFsZoomPanFitOptions = {}) {
     this._zoomPan.fit(options);
+  }
+
+  /**
+   * whether the content is still being held fitted through resizes. false once the user has zoomed
+   * or panned, true again after a fit()
+   */
+  public get fitHeld(): boolean {
+    return this._zoomPan?.fitHeld ?? false;
   }
 
   /**

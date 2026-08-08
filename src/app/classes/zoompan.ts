@@ -1,11 +1,43 @@
 import { Renderer2 } from '@angular/core';
 
-import { fromEvent, Observable, Subject, takeUntil, tap, throttleTime } from 'rxjs';
+import { filter, fromEvent, Observable, Subject, takeUntil, tap, throttleTime } from 'rxjs';
 
+import { IFsZoomPanFitOptions } from '../interfaces/zoom-pan-fit-options.interface';
 import { IFsZoomPanConfig } from '../interfaces/zoom-pan-config.interface';
+import { FsZoomPanFit, FsZoomPanPosition } from '../types/zoom-pan-fit.type';
 
 import { Pan } from './pan';
 import { Zoom } from './zoom';
+
+/** Where one axis of the fitted content sits relative to the view. */
+type FitAlignment = 'start' | 'center' | 'end';
+
+/** A named edge pins that edge and centres the other axis; a corner pins both. */
+const FIT_ALIGNMENT: Record<FsZoomPanPosition, { horizontal: FitAlignment, vertical: FitAlignment }> = {
+  'center': { horizontal: 'center', vertical: 'center' },
+  'top': { horizontal: 'center', vertical: 'start' },
+  'bottom': { horizontal: 'center', vertical: 'end' },
+  'left': { horizontal: 'start', vertical: 'center' },
+  'right': { horizontal: 'end', vertical: 'center' },
+  'top-left': { horizontal: 'start', vertical: 'start' },
+  'top-right': { horizontal: 'end', vertical: 'start' },
+  'bottom-left': { horizontal: 'start', vertical: 'end' },
+  'bottom-right': { horizontal: 'end', vertical: 'end' },
+};
+
+/**
+ * Where each mode puts the content when nothing is asked for.
+ *
+ * `both` fits on both axes, so centring it is the whole answer. The single-axis modes let the other
+ * axis overflow, and the default follows what reading the overflow is like: `width` overflows
+ * downwards and starts at the top, where anything you read starts, while `height` overflows
+ * sideways off both edges equally, so it centres.
+ */
+const FIT_DEFAULT_POSITION: Record<FsZoomPanFit, FsZoomPanPosition> = {
+  both: 'center',
+  width: 'top',
+  height: 'center',
+};
 
 export class ZoomPan {
 
@@ -14,6 +46,7 @@ export class ZoomPan {
   private _pan: Pan;
   private _contentResize: ResizeObserver = null;
   private _fitSize = '';
+  private _fitHeld = false;
 
   constructor(
     private _config: IFsZoomPanConfig,
@@ -27,8 +60,17 @@ export class ZoomPan {
     this.events();
 
     if (this._config.zoomFit) {
+      this._fitHeld = true;
       this._fitContent();
     }
+  }
+
+  /**
+   * Whether the content is still being held fitted through resizes. Starts true when `zoomFit` is
+   * on, goes false the moment the user zooms or pans, and comes back on an explicit fit().
+   */
+  public get fitHeld(): boolean {
+    return this._fitHeld;
   }
 
   public get moved$(): Observable<{ top: number, left: number }> {
@@ -67,8 +109,18 @@ export class ZoomPan {
    * reset zoom and pan to default values
    */
   public reset() {
+    this._releaseFit();
     this._zoom.reset();
     this._pan.reset();
+  }
+
+  /**
+   * the user has taken the view over, so stop holding it fitted. every re-fit repositions the
+   * content, and doing that underneath someone who has just chosen their own zoom or position
+   * would take it straight back off them.
+   */
+  private _releaseFit() {
+    this._fitHeld = false;
   }
 
   public destroy() {
@@ -155,51 +207,86 @@ export class ZoomPan {
   }
 
   /**
-   * scale the content so that it fills the width of the view without overflowing it, and pin
-   * its top left corner to the top left corner of the view. the resulting scale is still bound
-   * by zoomMin/zoomMax
-   * @param options horizontal: boolean - fit across the width (default true),
-   * vertical: boolean - also keep the content inside the height so that none of it is cut off,
-   * which makes it fit on whichever axis runs out of room first (default false),
-   * padding: number - gap in pixels to leave between the content and the edges of the view
+   * scale the content to the view and place it there. the resulting scale is still bound by
+   * zoomMin/zoomMax.
+   *
+   * mode decides which axes have to be satisfied:
+   *   both   (default) - whichever axis runs out of room first wins, so NOTHING is cut off
+   *   width            - fills the width; the height may overflow
+   *   height           - fills the height; the width may overflow
+   *
+   * position decides where it lands. each mode has a natural default (both/height centre, width
+   * pins to the top) and any of the nine positions overrides it. on an axis the fit satisfied
+   * exactly every position lands in the same place, so this only really speaks for an axis that
+   * overflows or one with room to spare.
+   *
+   * an explicit fit() also re-arms the held fit when zoomFit is on: asking to be fitted is asking
+   * to go back to being kept fitted.
    */
-  public fit(options: {
-    horizontal?: boolean,
-    vertical?: boolean,
-    padding?: number,
-    slide?: boolean,
-  } = {}) {
+  public fit(options: IFsZoomPanFitOptions = {}) {
     const bounds = this.getContentBounds();
 
     if (!bounds.width || !bounds.height) {
       return;
     }
 
+    const mode = options.mode ?? this._config.fitMode ?? 'both';
+    const padding = options.padding ?? this._config.fitPadding ?? 0;
+    const maxScale = options.maxScale ?? this._config.fitMaxScale;
+    const position = options.position ?? this._config.fitPosition ?? FIT_DEFAULT_POSITION[mode];
     const viewport = this._pan.getViewportSize();
-    const padding = options.padding ?? 0;
     const scales = [];
 
-    if (options.horizontal !== false) {
+    if (mode !== 'height') {
       scales.push((viewport.width - (padding * 2)) / bounds.width);
     }
 
-    if (options.vertical) {
+    if (mode !== 'width') {
       scales.push((viewport.height - (padding * 2)) / bounds.height);
     }
 
-    if (!scales.length) {
-      return;
+    if (maxScale !== undefined && maxScale !== null) {
+      scales.push(maxScale);
     }
 
-    // the smaller of the two ratios is the one that keeps both axes inside the view
+    // the smallest ratio is the one that keeps every constrained axis inside the view, and
+    // maxScale rides along as one more thing the result must not exceed
     this._zoom.setScale(Math.min(...scales));
 
-    // read the scale back rather than reusing the ratio, zoomMin/zoomMax may have clamped it.
-    // the padding is a viewport measurement, so it converts to content units to sit outside
-    // the corner the content is pinned to
-    const gap = padding / this._zoom.scale;
+    // read the scale back rather than reusing the ratio, zoomMin/zoomMax may have clamped it
+    const scale = this._zoom.scale;
+    const alignment = FIT_ALIGNMENT[position];
+    const left = this._fitOffset(alignment.horizontal, viewport.width, bounds.width * scale, padding);
+    const top = this._fitOffset(alignment.vertical, viewport.height, bounds.height * scale, padding);
 
-    this.moveTopLeft(bounds.left - gap, bounds.top - gap, options);
+    // the offsets are viewport measurements, so they convert to content units to say which content
+    // point belongs in the corner of the view
+    this.moveTopLeft(bounds.left - (left / scale), bounds.top - (top / scale), options);
+
+    this._fitHeld = this._config.zoomFit === true;
+  }
+
+  /**
+   * where the content starts along one axis, in viewport pixels from the start of the view.
+   * centring ignores padding - padding keeps content off an edge it is pinned to, and centred
+   * content is not pinned to either. content bigger than the view yields a negative offset, which
+   * is what puts the middle of an overflowing axis on screen rather than its start.
+   */
+  private _fitOffset(
+    alignment: FitAlignment,
+    viewport: number,
+    content: number,
+    padding: number,
+  ): number {
+    if (alignment === 'center') {
+      return (viewport - content) / 2;
+    }
+
+    if (alignment === 'end') {
+      return viewport - content - padding;
+    }
+
+    return padding;
   }
 
   /**
@@ -230,11 +317,18 @@ export class ZoomPan {
 
   /**
    * fit, but only when the content or the space it has to fit into really did end up a
-   * different size. the triggers fire more than once and overlap with each other, and once
-   * everything has settled they stop mattering entirely - which is what keeps this from
-   * fighting the user for control of the view afterwards
+   * different size. the triggers fire more than once and overlap with each other, so a size that
+   * has not moved is not worth refitting.
+   *
+   * the fit is only still ours to redo while it is held. once the user has zoomed or panned the
+   * view is theirs, and a container resize after that keeps whatever they set instead of snapping
+   * the content back to fitted underneath them
    */
   private _fitChangedContent() {
+    if (!this._fitHeld) {
+      return;
+    }
+
     const bounds = this.getContentBounds();
     const viewport = this._pan.getViewportSize();
     const size = [bounds.width, bounds.height, viewport.width, viewport.height].join('x');
@@ -335,6 +429,7 @@ export class ZoomPan {
    * @param scale
    */
   public zoom(scale: number) {
+    this._releaseFit();
     const center = this.getCenter();
     this._zoom.setScale(scale);
     this.moveCenter(center.x, center.y);
@@ -344,6 +439,7 @@ export class ZoomPan {
    * zoom in by one step, keeping the current center in the same position
    */
   public zoomIn() {
+    this._releaseFit();
     const center = this.getCenter();
     this._zoom.zoomIn();
     this.moveCenter(center.x, center.y);
@@ -353,23 +449,49 @@ export class ZoomPan {
    * zoom out by one step, keeping the current center in the same position
    */
   public zoomOut() {
+    this._releaseFit();
     const center = this.getCenter();
     this._zoom.zoomOut();
     this.moveCenter(center.x, center.y);
   }
 
   /**
-   * listen for mousewheel events
+   * listen for mousewheel events.
+   *
+   * preventDefault has to happen on the events this actually zooms with and on no others -
+   * a wheel event that is swallowed here never reaches the page, so under 'modifier' and
+   * 'never' the events that are not ours are left entirely alone and the page scrolls past
    */
   public events() {
+    // a pointer drag is the user taking the view over; a programmatic move is not, which is why
+    // this listens to dragged$ rather than moved$
+    this._pan.dragged$
+      .pipe(
+        takeUntil(this._destroy$),
+      )
+      .subscribe(() => this._releaseFit());
+
+    if (this._config.wheel === 'never') {
+      return;
+    }
+
     fromEvent(this._element, 'wheel')
       .pipe(
+        filter((event: WheelEvent) => this._zooms(event)),
         tap((event: WheelEvent) => event.preventDefault()),
         throttleTime(20),
         tap((event: WheelEvent) => this.wheel(event)),
         takeUntil(this._destroy$),
       )
       .subscribe();
+  }
+
+  /**
+   * trackpad pinch arrives as a wheel event with ctrlKey set, so 'modifier' covers the
+   * pinch gesture as well as the deliberate Ctrl/⌘ + wheel
+   */
+  private _zooms(event: WheelEvent): boolean {
+    return this._config.wheel !== 'modifier' || event.ctrlKey || event.metaKey;
   }
 
   /**
@@ -387,6 +509,8 @@ export class ZoomPan {
     if (!delta) {
       return;
     }
+
+    this._releaseFit();
 
     // measured against the container's own origin, so no parent/page offsets are involved
     const origin = this._pan.getOrigin();
