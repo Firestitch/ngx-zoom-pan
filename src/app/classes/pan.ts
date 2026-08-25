@@ -1,18 +1,25 @@
 import { Renderer2 } from '@angular/core';
 
-import { fromEvent, Observable, Subject, takeUntil, tap } from 'rxjs';
+import { fromEvent, merge, Observable, Subject, takeUntil, tap } from 'rxjs';
+
+
+/** on the host for the length of a drag, so the cursor can close into a fist while it runs */
+const DRAGGING_CLASS = 'fs-zoom-pan-dragging';
+
+/** on the host while panning is turned off, so the surface stops offering a drag it will refuse */
+const DISABLED_CLASS = 'fs-zoom-pan-disabled';
 
 
 export class Pan {
-
-  public disabled = false;
 
   private _positionCoord: { x: number, y: number };
   private _positionPage: { left: number, top: number };
   private _destroy$ = new Subject<void>();
   private _moved$ = new Subject<{ top: number, left: number }>();
   private _dragged$ = new Subject<void>();
+  private _dragEnd$ = new Subject<void>();
   private _dragStart = false;
+  private _disabled = false;
   private _left = 0;
   private _top = 0;
 
@@ -27,6 +34,24 @@ export class Pan {
     this._top = parseFloat(this._zoomElement.style.top) || 0;
 
     this.events();
+  }
+
+  public get disabled(): boolean {
+    return this._disabled;
+  }
+
+  /**
+   * turning panning off also drops the grab cursor and ends any drag already running: a surface
+   * that advertises a drag and then refuses it reads as broken
+   */
+  public set disabled(disabled: boolean) {
+    this._disabled = disabled;
+
+    if (disabled) {
+      this.dragEnd();
+    }
+
+    this._toggleClass(DISABLED_CLASS, disabled);
   }
 
   public get moved$(): Observable<{ top: number, left: number }> {
@@ -50,6 +75,18 @@ export class Pan {
     return this._left;
   }
 
+  /**
+   * a drag STARTS on the element and then runs on the document.
+   *
+   * starting on the element is what lets a child veto the pan by stopping mousedown — a report
+   * component being repositioned, a block being moved — so those listeners stay where they are.
+   * mouse events are kept, rather than moving to pointer events with setPointerCapture, for the
+   * same reason: pointerdown fires ahead of mousedown, so a consumer that blocks the pan on
+   * mousedown would find it had already started.
+   *
+   * everything after the press belongs to the document, because taking the pointer outside the
+   * viewport is the ordinary way to pan a zoomed-in page a long way and must not end the drag.
+   */
   public events() {
     fromEvent(this._element, 'mousedown')
       .pipe(
@@ -58,38 +95,11 @@ export class Pan {
       )
       .subscribe();
 
-    fromEvent(this._element, 'mouseup')
-      .pipe(
-        tap(() => this.dragEnd()),
-        takeUntil(this._destroy$),
-      )
-      .subscribe();
-
-    fromEvent(this._element, 'mousemove')
-      .pipe(
-        tap((event: MouseEvent) => this.drag(event)),
-        takeUntil(this._destroy$),
-      )
-      .subscribe();
-
-    fromEvent(this._element, 'mouseleave')
-      .pipe(
-        tap(() => this.dragEnd()),
-        takeUntil(this._destroy$),
-      )
-      .subscribe();
-
-
+    // touch events keep being delivered to the element the gesture started on, so touch needs
+    // none of the document-level plumbing the mouse does
     fromEvent(this._element, 'touchstart')
       .pipe(
         tap((event: TouchEvent) => this.dragStart(event)),
-        takeUntil(this._destroy$),
-      )
-      .subscribe();
-
-    fromEvent(this._element, 'touchend')
-      .pipe(
-        tap(() => this.dragEnd()),
         takeUntil(this._destroy$),
       )
       .subscribe();
@@ -100,17 +110,44 @@ export class Pan {
         takeUntil(this._destroy$),
       )
       .subscribe();
+
+    // touchcancel is the system taking the gesture away — a call arriving, a browser edge swipe —
+    // and leaves no touchend behind to end the drag with
+    merge(
+      fromEvent(this._element, 'touchend'),
+      fromEvent(this._element, 'touchcancel'),
+    )
+      .pipe(
+        tap(() => this.dragEnd()),
+        takeUntil(this._destroy$),
+      )
+      .subscribe();
   }
 
   public dragStart(event: MouseEvent | TouchEvent) {
-    if (!this.disabled) {
-      this._positionCoord = this.pointerEventToXY(event);
-      this._positionPage = {
-        top: this._top,
-        left: this._left,
-      };
+    if (this._disabled) {
+      return;
+    }
 
-      this._dragStart = true;
+    const mouse = event.type === 'mousedown';
+
+    // only the primary button pans. a right-click drag would otherwise leave the content stuck to
+    // the pointer, because the mouseup that ends it goes to the context menu instead
+    if (mouse && (event as MouseEvent).button !== 0) {
+      return;
+    }
+
+    this._positionCoord = this.pointerEventToXY(event);
+    this._positionPage = {
+      top: this._top,
+      left: this._left,
+    };
+
+    this._dragStart = true;
+    this._toggleClass(DRAGGING_CLASS, true);
+
+    if (mouse) {
+      this._listenDocumentDrag();
     }
   }
 
@@ -165,7 +202,15 @@ export class Pan {
   }
 
   public dragEnd() {
+    if (!this._dragStart) {
+      return;
+    }
+
     this._dragStart = false;
+    this._toggleClass(DRAGGING_CLASS, false);
+
+    // releases the document listeners this drag put up
+    this._dragEnd$.next();
   }
 
   public reset() {
@@ -256,6 +301,7 @@ export class Pan {
     this._destroy$.next();
     this._destroy$.complete();
     this._dragged$.complete();
+    this._dragEnd$.complete();
   }
 
   public pointerEventToXY(event: MouseEvent | TouchEvent): { x: number, y: number } {
@@ -292,5 +338,44 @@ export class Pan {
     this._renderer.setStyle(this._zoomElement, 'transition', '');
   }
 
+  /**
+   * follow the pointer for as long as the button is held, wherever it goes, and end on release.
+   *
+   * the listeners live on the document only for the length of the drag, so they cost nothing the
+   * rest of the time. alongside the release there are two ways a press ends without a mouseup ever
+   * arriving — pointercancel, the browser taking the gesture over, and the window losing focus,
+   * which covers a button released over another window. both have to end the drag too: a missed
+   * release leaves the content following a pointer with nothing held down, which is a worse bug
+   * than the one this replaces.
+   */
+  private _listenDocumentDrag() {
+    const end$ = merge(this._dragEnd$, this._destroy$);
+
+    fromEvent(document, 'mousemove')
+      .pipe(
+        tap((event: MouseEvent) => this.drag(event)),
+        takeUntil(end$),
+      )
+      .subscribe();
+
+    merge(
+      fromEvent(document, 'mouseup'),
+      fromEvent(document, 'pointercancel'),
+      fromEvent(window, 'blur'),
+    )
+      .pipe(
+        tap(() => this.dragEnd()),
+        takeUntil(end$),
+      )
+      .subscribe();
+  }
+
+  private _toggleClass(name: string, add: boolean) {
+    if (add) {
+      this._renderer.addClass(this._element, name);
+    } else {
+      this._renderer.removeClass(this._element, name);
+    }
+  }
 
 }
